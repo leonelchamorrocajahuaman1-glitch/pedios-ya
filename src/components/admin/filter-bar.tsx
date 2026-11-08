@@ -9,9 +9,14 @@ import { cn } from "@/lib/utils";
 export function FilterBar({
   searchPlaceholder = "Buscar…",
   selects = [],
+  dates = false,
+  hideSearch = false,
 }: {
   searchPlaceholder?: string;
-  selects?: { name: string; label: string; options: { value: string; label: string }[] }[];
+  selects?: { name: string; label: string; options: { value: string; label: string }[]; allLabel?: string }[];
+  /** Muestra filtros de fecha «desde» y «hasta» (?desde=YYYY-MM-DD&hasta=YYYY-MM-DD) */
+  dates?: boolean;
+  hideSearch?: boolean;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -37,10 +42,10 @@ export function FilterBar({
 
   return (
     <div className={cn("mb-4 flex flex-wrap items-center gap-2", pending && "opacity-70")}>
-      <label className="flex h-10 min-w-56 flex-1 items-center gap-2 rounded-full border border-border bg-surface px-4 sm:max-w-sm">
+      {!hideSearch && <label className="flex h-10 min-w-56 flex-1 items-center gap-2 rounded-full border border-border bg-surface px-4 sm:max-w-sm">
         <Search className="h-4 w-4 text-muted" />
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={searchPlaceholder} className="w-full bg-transparent text-sm outline-none" aria-label="Buscar" maxLength={60} />
-      </label>
+      </label>}
       {selects.map((s) => (
         <select
           key={s.name}
@@ -49,10 +54,20 @@ export function FilterBar({
           onChange={(e) => push(s.name, e.target.value)}
           className="h-10 rounded-full border border-border bg-surface px-4 text-sm"
         >
-          <option value="">{s.label}: todos</option>
+          <option value="">{s.allLabel ?? `${s.label}: todos`}</option>
           {s.options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
       ))}
+      {dates && (
+        <>
+          <label className="flex h-10 items-center gap-2 rounded-full border border-border bg-surface px-4 text-sm text-muted">
+            Desde <input type="date" value={params.get("desde") ?? ""} onChange={(e) => push("desde", e.target.value)} className="bg-transparent text-fg outline-none" aria-label="Desde" />
+          </label>
+          <label className="flex h-10 items-center gap-2 rounded-full border border-border bg-surface px-4 text-sm text-muted">
+            Hasta <input type="date" value={params.get("hasta") ?? ""} onChange={(e) => push("hasta", e.target.value)} className="bg-transparent text-fg outline-none" aria-label="Hasta" />
+          </label>
+        </>
+      )}
     </div>
   );
 }

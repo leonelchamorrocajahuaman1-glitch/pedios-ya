@@ -1,43 +1,50 @@
-import type { DiscountType, OrderStatus, PaymentMethod, PaymentStatus, RestaurantStatus } from "@/types";
+import type { DiscountType, MovementType, OrderStatus, PaymentMethod, PaymentStatus, ProductUnit } from "@/types";
 
 export const BRAND = {
-  name: "Mikuy",
-  tagline: "Lo que se te antoje, en minutos",
-  meaning: "«Mikuy» significa «comer» en quechua.",
+  name: "MULTIPRODUCTOS HUAYTALLA",
+  short: "Huaytalla",
+  slogan: "Todo lo que necesitas, en un solo lugar",
 };
 
-/** Flujo de seguimiento (7 etapas) */
-export const ORDER_FLOW: OrderStatus[] = [
-  "received",
-  "accepted",
-  "preparing",
-  "courier_assigned",
-  "picked_up",
-  "on_the_way",
-  "delivered",
-];
-
 export const ORDER_STATUS_LABEL: Record<OrderStatus, string> = {
-  received: "Pedido recibido",
-  accepted: "Restaurante aceptó",
-  preparing: "Preparando pedido",
-  courier_assigned: "Repartidor asignado",
-  picked_up: "Repartidor recogió el pedido",
-  on_the_way: "Pedido en camino",
-  delivered: "Pedido entregado",
+  received: "Pendiente",
+  accepted: "Confirmado",
+  preparing: "Preparando",
+  ready: "Listo para entregar",
+  on_the_way: "En camino",
+  delivered: "Entregado",
   cancelled: "Cancelado",
 };
 
-export const ORDER_STATUS_TONE: Record<OrderStatus, "neutral" | "info" | "warning" | "success" | "danger" | "brand"> = {
-  received: "info",
+/** Texto para el cliente en el seguimiento */
+export const ORDER_STATUS_CUSTOMER: Record<OrderStatus, string> = {
+  received: "Recibimos tu pedido",
+  accepted: "Pedido confirmado",
+  preparing: "Estamos preparando tu pedido",
+  ready: "Tu pedido está listo",
+  on_the_way: "Tu pedido va en camino",
+  delivered: "Pedido entregado",
+  cancelled: "Pedido cancelado",
+};
+
+export const ORDER_STATUS_TONE: Record<OrderStatus, "neutral" | "info" | "warning" | "success" | "danger" | "brand" | "accent"> = {
+  received: "warning",
   accepted: "info",
-  preparing: "warning",
-  courier_assigned: "brand",
-  picked_up: "brand",
+  preparing: "accent",
+  ready: "brand",
   on_the_way: "brand",
   delivered: "success",
   cancelled: "danger",
 };
+
+export const FLOW_DELIVERY: OrderStatus[] = ["received", "accepted", "preparing", "ready", "on_the_way", "delivered"];
+export const FLOW_PICKUP: OrderStatus[] = ["received", "accepted", "preparing", "ready", "delivered"];
+
+export function nextStatus(status: OrderStatus, fulfillment: "delivery" | "pickup"): OrderStatus | null {
+  const flow = fulfillment === "pickup" ? FLOW_PICKUP : FLOW_DELIVERY;
+  const i = flow.indexOf(status);
+  return i >= 0 && i < flow.length - 1 ? flow[i + 1] : null;
+}
 
 export const PAYMENT_METHOD_LABEL: Record<PaymentMethod, string> = {
   cash: "Efectivo",
@@ -49,7 +56,7 @@ export const PAYMENT_METHOD_LABEL: Record<PaymentMethod, string> = {
 export const PAYMENT_STATUS_LABEL: Record<PaymentStatus, string> = {
   pending: "Pendiente",
   pending_verification: "Por verificar",
-  approved: "Confirmado",
+  approved: "Verificado",
   rejected: "Rechazado",
   refunded: "Reembolsado",
   cancelled: "Anulado",
@@ -64,19 +71,33 @@ export const PAYMENT_STATUS_TONE: Record<PaymentStatus, "neutral" | "info" | "wa
   cancelled: "neutral",
 };
 
-export const RESTAURANT_STATUS_LABEL: Record<RestaurantStatus, string> = {
-  pending: "Pendiente",
-  approved: "Aprobado",
-  suspended: "Suspendido",
-  rejected: "Rechazado",
-};
-
 export const DISCOUNT_TYPE_LABEL: Record<DiscountType, string> = {
   percentage: "Porcentaje",
   fixed: "Monto fijo",
-  free_delivery: "Envío gratis",
+  free_delivery: "Delivery gratis",
 };
 
-export const DAYS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+export const MOVEMENT_LABEL: Record<MovementType, string> = {
+  in: "Entrada",
+  out: "Salida",
+  adjustment: "Ajuste",
+  sale: "Venta",
+  sale_cancel: "Anulación de venta",
+};
 
-export const LIMA_CENTER = { lat: -12.1211, lng: -77.0297 };
+export const UNITS: { value: ProductUnit; label: string }[] = [
+  { value: "unidad", label: "Unidad" },
+  { value: "kg", label: "Kilogramo (kg)" },
+  { value: "g", label: "Gramos (g)" },
+  { value: "l", label: "Litro (L)" },
+  { value: "ml", label: "Mililitros (ml)" },
+  { value: "paquete", label: "Paquete" },
+  { value: "caja", label: "Caja" },
+  { value: "docena", label: "Docena" },
+  { value: "bolsa", label: "Bolsa" },
+  { value: "lata", label: "Lata" },
+  { value: "botella", label: "Botella" },
+  { value: "six pack", label: "Six pack" },
+];
+
+export const DAYS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];

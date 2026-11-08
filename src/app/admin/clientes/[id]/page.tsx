@@ -20,8 +20,8 @@ export default async function AdminCustomerPage({ params }: { params: Promise<{ 
   if (!z.uuid().safeParse(id).success) notFound();
   const supabase = await createSupabaseServerClient();
   const [{ data: profile }, { data: orders }, { data: addresses }] = await Promise.all([
-    supabase.from("profiles").select("*").eq("id", id).maybeSingle(),
-    supabase.from("orders").select("id, code, status, total, payment_method, created_at, restaurants(name)").eq("user_id", id).order("created_at", { ascending: false }).limit(100),
+    supabase.from("profiles").select("id, full_name, email, phone, role, status, created_at, avatar_url").eq("id", id).maybeSingle(),
+    supabase.from("orders").select("id, code, status, total, payment_method, fulfillment, created_at").eq("user_id", id).eq("catalog", "store").order("created_at", { ascending: false }).limit(100),
     supabase.from("addresses").select("*").eq("user_id", id),
   ]);
   if (!profile) notFound();
@@ -38,25 +38,25 @@ export default async function AdminCustomerPage({ params }: { params: Promise<{ 
       </div>
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard label="Pedidos" value={String(list.length)} />
-        <StatCard label="Total gastado" value={formatPEN(spent)} />
+        <StatCard label="Total comprado" value={formatPEN(spent)} hint="Pedidos entregados" />
         <StatCard label="Cliente desde" value={formatDate(p.created_at)} />
       </div>
       <div className="grid gap-6 xl:grid-cols-[1fr_2fr]">
         <div className="space-y-6">
           <Card><CardHeader><CardTitle>Datos</CardTitle></CardHeader><CardBody><p className="mb-3 text-sm text-muted">{p.email}</p><CustomerEditForm profile={p} /></CardBody></Card>
           <Card><CardHeader><CardTitle>Direcciones</CardTitle></CardHeader><CardBody className="space-y-2 text-sm">
-            {(addresses as Address[] | null)?.length ? (addresses as Address[]).map((a) => <p key={a.id}><strong>{a.label}:</strong> {a.street}, {a.district}</p>) : <p className="text-muted">Sin direcciones.</p>}
+            {(addresses as Address[] | null)?.length ? (addresses as Address[]).map((a) => <p key={a.id}><strong>{a.label}:</strong> {a.street}{a.district && `, ${a.district}`}{a.reference && <span className="block text-xs text-muted">Ref.: {a.reference}</span>}</p>) : <p className="text-muted">Sin direcciones.</p>}
           </CardBody></Card>
         </div>
         <div>
           <h2 className="mb-3 font-display text-lg font-semibold">Pedidos</h2>
           <TableWrap>
-            <thead><tr><Th>Pedido</Th><Th>Restaurante</Th><Th>Estado</Th><Th>Método</Th><Th className="text-right">Total</Th></tr></thead>
+            <thead><tr><Th>Pedido</Th><Th>Entrega</Th><Th>Estado</Th><Th>Método</Th><Th className="text-right">Total</Th></tr></thead>
             <tbody>
               {list.map((o) => (
                 <Tr key={o.id}>
                   <Td><Link href={`/admin/pedidos/${o.id}`} className="font-mono font-semibold text-brand">{o.code}</Link><p className="text-xs text-muted">{formatDateTime(o.created_at)}</p></Td>
-                  <Td>{o.restaurants?.name}</Td>
+                  <Td>{o.fulfillment === "pickup" ? "Recojo" : "Delivery"}</Td>
                   <Td><Badge tone={ORDER_STATUS_TONE[o.status]}>{ORDER_STATUS_LABEL[o.status]}</Badge></Td>
                   <Td>{PAYMENT_METHOD_LABEL[o.payment_method]}</Td>
                   <Td className="text-right font-semibold">{formatPEN(o.total)}</Td>

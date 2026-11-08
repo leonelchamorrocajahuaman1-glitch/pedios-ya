@@ -3,27 +3,23 @@
 import { useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { toUserMessage } from "@/lib/errors";
-import { toOrderItems, type CartItem } from "./use-cart";
-import type { OrderQuote } from "@/types";
+import { toOrderItems, useCart, type CartItem } from "./use-cart";
+import type { CartQuote, Fulfillment } from "@/types";
 
 /**
- * Cotiza el carrito en la base de datos (quote_order): precios, envío por distancia,
- * cupón y stock reales. Se recalcula con debounce cuando algo cambia.
+ * Cotiza el carrito en la base de datos (store_quote): precios con promociones,
+ * stock, delivery, compra mínima y cupón reales. Recalcula con debounce.
  */
-export function useQuote(params: {
-  restaurantId: string | null;
-  items: CartItem[];
-  coupon: string | null;
-  addressId?: string | null;
-  enabled?: boolean;
-}) {
-  const { restaurantId, items, coupon, addressId, enabled = true } = params;
-  const [quote, setQuote] = useState<OrderQuote | null>(null);
+export function useQuote(params: { items: CartItem[]; coupon: string | null; fulfillment: Fulfillment; addressId?: string | null; enabled?: boolean }) {
+  const { items, coupon, fulfillment, addressId, enabled = true } = params;
+  const { syncFromServer } = useCart();
+  const [quote, setQuote] = useState<CartQuote | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<string | null>(null);
   const [couponError, setCouponError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const active = Boolean(enabled && restaurantId && items.length > 0);
-  const signature = JSON.stringify([restaurantId, toOrderItems(items), coupon, addressId]);
+  const active = Boolean(enabled && items.length > 0);
+  const signature = JSON.stringify([toOrderItems(items), coupon, fulfillment, addressId]);
 
   useEffect(() => {
     if (!active) return;
@@ -32,15 +28,14 @@ export function useQuote(params: {
       setLoading(true);
       const supabase = getSupabaseBrowserClient();
       const run = (code: string | null) =>
-        supabase.rpc("quote_order", {
-          p_restaurant_id: restaurantId,
+        supabase.rpc("store_quote", {
           p_items: toOrderItems(items),
           p_coupon_code: code,
+          p_fulfillment: fulfillment,
           p_address_id: addressId ?? null,
         });
       let { data, error: err } = await run(coupon);
       let cErr: string | null = null;
-      // Si el problema es el cupón, cotizamos sin él y mostramos el motivo
       if (err && coupon && (err.hint ?? "").startsWith("COUPON")) {
         cErr = toUserMessage(err);
         ({ data, error: err } = await run(null));
@@ -49,19 +44,25 @@ export function useQuote(params: {
       setCouponError(cErr);
       if (err) {
         setError(toUserMessage(err));
+        setErrorCode(err.hint ?? null);
         setQuote(null);
       } else {
+        const q = data as CartQuote;
         setError(null);
-        setQuote(data as OrderQuote);
+        setErrorCode(null);
+        setQuote(q);
+        syncFromServer(q.lines);
       }
       setLoading(false);
-    }, 350);
+    }, 300);
     return () => {
       cancelled = true;
       clearTimeout(t);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [signature, enabled]);
+  }, [signature, active]);
 
-  return active ? { quote, error, couponError, loading } : { quote: null, error: null, couponError: null, loading: false };
+  return active
+    ? { quote, error, errorCode, couponError, loading }
+    : { quote: null, error: null, errorCode: null, couponError: null, loading: false };
 }

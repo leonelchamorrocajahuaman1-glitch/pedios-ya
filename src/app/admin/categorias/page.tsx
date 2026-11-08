@@ -8,15 +8,18 @@ export const metadata: Metadata = { title: "Categorías" };
 
 export default async function AdminCategoriesPage() {
   const supabase = await createSupabaseServerClient();
-  const [{ data }, { data: links }] = await Promise.all([
-    supabase.from("categories").select("*").order("sort_order"),
-    supabase.from("restaurant_categories").select("category_id"),
+  const [{ data }, { data: products }] = await Promise.all([
+    supabase.from("categories").select("*").eq("catalog", "store").order("sort_order").order("name"),
+    supabase.from("products").select("category_id, subcategory_id").eq("catalog", "store").limit(5000),
   ]);
   const counts: Record<string, number> = {};
-  for (const l of links ?? []) counts[l.category_id] = (counts[l.category_id] ?? 0) + 1;
+  for (const p of products ?? []) {
+    if (p.category_id) counts[p.category_id] = (counts[p.category_id] ?? 0) + 1;
+    if (p.subcategory_id) counts[p.subcategory_id] = (counts[p.subcategory_id] ?? 0) + 1;
+  }
   return (
     <div>
-      <PageHeader title="Categorías" description="Organiza el catálogo que ven los clientes." />
+      <PageHeader title="Categorías" description="Categorías y subcategorías del catálogo: imagen, orden y visibilidad." />
       <CategoryManager categories={(data ?? []) as Category[]} counts={counts} />
     </div>
   );

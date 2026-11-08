@@ -11,7 +11,7 @@ export function SetupNotice() {
         <div className="space-y-3 text-sm">
           <h2 className="font-display text-xl font-semibold">Conecta Supabase para empezar</h2>
           <p className="text-muted">
-            La plataforma lee restaurantes, productos y pedidos desde tu base de datos real. Configura estas variables
+            La tienda lee productos, categorías y pedidos desde tu base de datos real. Configura estas variables
             en <code>.env.local</code> (o en Vercel → Settings → Environment Variables) y reinicia:
           </p>
           <pre className="overflow-x-auto rounded-2xl bg-surface p-4 text-xs leading-relaxed">
@@ -21,7 +21,7 @@ SUPABASE_SERVICE_ROLE_KEY=<clave service_role (solo servidor)>`}
           </pre>
           <p className="text-muted">
             Luego ejecuta las migraciones de <code>supabase/migrations</code> y, si quieres datos de ejemplo,
-            <code> supabase/seed/demo_data.sql</code>. Los pasos completos están en el README.
+            <code> supabase/seed/store_demo.sql</code>. Los pasos completos están en el README.
           </p>
         </div>
       </div>

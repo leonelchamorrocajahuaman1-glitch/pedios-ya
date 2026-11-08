@@ -14,8 +14,12 @@ const TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"];
  * Sube imágenes al bucket "images" de Supabase Storage (solo admins por política RLS)
  * y guarda la URL pública en un campo oculto del formulario. También acepta URL manual.
  */
-export function ImageUpload({ name, defaultValue, folder, label = "Imagen" }: { name: string; defaultValue?: string | null; folder: string; label?: string }) {
-  const [url, setUrl] = useState(defaultValue ?? "");
+export function ImageUpload({ name, defaultValue, folder, label = "Imagen", onChange }: { name: string; defaultValue?: string | null; folder: string; label?: string; onChange?: (url: string) => void }) {
+  const [url, setUrlState] = useState(defaultValue ?? "");
+  const setUrl = (v: string) => {
+    setUrlState(v);
+    onChange?.(v);
+  };
   const [uploading, setUploading] = useState(false);
   const input = useRef<HTMLInputElement>(null);
 

@@ -1,94 +1,107 @@
 "use client";
 
-import { useTransition } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ConfirmButton } from "@/components/ui/confirm-button";
-import { Checkbox, Field, Input } from "@/components/ui/input";
+import { Field, Input, Textarea } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { ImageUpload } from "./image-upload";
-import { purgeDemoDataAction, saveSettingsAction } from "@/lib/actions/admin";
-import type { PlatformSettings } from "@/types";
+import { useRun } from "./use-run";
+import { saveSettingsAction } from "@/lib/actions/admin";
+import { DAYS } from "@/lib/constants";
+import type { OpeningHour, StoreSettings } from "@/types";
 
-export function SettingsForm({ settings: s, integrations }: { settings: PlatformSettings; integrations: { label: string; ok: boolean; hint: string }[] }) {
-  const router = useRouter();
-  const [pending, start] = useTransition();
+const DEFAULT_HOURS: OpeningHour[] = Array.from({ length: 7 }, (_, day) => ({ day, open: "08:00", close: "21:00", closed: false }));
+
+export function SettingsForm({ settings: s }: { settings: StoreSettings }) {
+  const { pending, run } = useRun();
+  const [flags, setFlags] = useState({ accepting: s.accepting_orders, delivery: s.delivery_enabled, pickup: s.pickup_enabled });
+  const [hours, setHours] = useState<OpeningHour[]>(() => {
+    const byDay = new Map((s.opening_hours ?? []).map((h) => [h.day, h]));
+    return DEFAULT_HOURS.map((d) => byDay.get(d.day) ?? d);
+  });
+  const setHour = (day: number, patch: Partial<OpeningHour>) => setHours((hs) => hs.map((h) => (h.day === day ? { ...h, ...patch } : h)));
+  // Lunes primero en la vista
+  const ordered = [...hours.slice(1), hours[0]];
+
   return (
-    <div className="space-y-6">
-      <form className="space-y-6" action={(fd) => start(async () => {
-        const res = await saveSettingsAction(fd);
-        if (!res.ok) toast.error(res.error); else { toast.success(res.message); router.refresh(); }
-      })}>
-        <Card>
-          <CardHeader><CardTitle>Marca</CardTitle></CardHeader>
-          <CardBody className="grid gap-4 md:grid-cols-2">
-            <Field label="Nombre de la plataforma" htmlFor="pn"><Input id="pn" name="platform_name" defaultValue={s.platform_name} required maxLength={40} /></Field>
-            <ImageUpload name="logo_url" folder="brand" label="Logotipo (opcional)" defaultValue={s.logo_url} />
-            <Field label="Color principal" htmlFor="pc"><Input id="pc" name="primary_color" type="color" defaultValue={s.primary_color} className="h-12 p-1" /></Field>
-            <Field label="Color de acento" htmlFor="ac"><Input id="ac" name="accent_color" type="color" defaultValue={s.accent_color} className="h-12 p-1" /></Field>
-          </CardBody>
-        </Card>
-        <Card>
-          <CardHeader><CardTitle>Comisiones y envíos</CardTitle></CardHeader>
-          <CardBody className="grid gap-4 md:grid-cols-3">
-            <Field label="Comisión por defecto (%)" htmlFor="dc"><Input id="dc" name="default_commission_rate" type="number" step="0.5" min={0} max={50} defaultValue={(Number(s.default_commission_rate) * 100).toFixed(1)} /></Field>
-            <Field label="Tarifa base de envío (S/)" htmlFor="bf"><Input id="bf" name="base_delivery_fee" type="number" step="0.10" min={0} defaultValue={s.base_delivery_fee} /></Field>
-            <Field label="Costo por km adicional (S/)" htmlFor="fk"><Input id="fk" name="fee_per_km" type="number" step="0.10" min={0} defaultValue={s.fee_per_km} /></Field>
-            <Field label="Km incluidos en la tarifa" htmlFor="ik"><Input id="ik" name="included_km" type="number" step="0.5" min={0} defaultValue={s.included_km} /></Field>
-            <Field label="Radio máximo de reparto (km)" htmlFor="mk"><Input id="mk" name="max_delivery_km" type="number" step="0.5" min={1} defaultValue={s.max_delivery_km} /></Field>
-            <Field label="Envío gratis desde (S/)" htmlFor="ft" hint="Vacío = desactivado"><Input id="ft" name="free_delivery_threshold" type="number" step="0.10" min={0} defaultValue={s.free_delivery_threshold ?? ""} /></Field>
-            <Field label="Tarifa de servicio (S/)" htmlFor="sf"><Input id="sf" name="service_fee" type="number" step="0.10" min={0} defaultValue={s.service_fee} /></Field>
-          </CardBody>
-        </Card>
-        <Card>
-          <CardHeader><CardTitle>Métodos de pago</CardTitle></CardHeader>
-          <CardBody className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-3">
-              <Checkbox name="payment_cash_enabled" defaultChecked={s.payment_cash_enabled} label="Efectivo contra entrega" />
-              <Checkbox name="payment_yape_enabled" defaultChecked={s.payment_yape_enabled} label="Yape (verificación manual)" />
-              <Checkbox name="payment_plin_enabled" defaultChecked={s.payment_plin_enabled} label="Plin (verificación manual)" />
-              <Checkbox name="payment_card_enabled" defaultChecked={s.payment_card_enabled} label="Tarjeta (Mercado Pago)" />
-            </div>
-            <div className="space-y-4">
-              <Field label="Número Yape del comercio" htmlFor="yp"><Input id="yp" name="yape_phone" defaultValue={s.yape_phone ?? ""} /></Field>
-              <Field label="Número Plin del comercio" htmlFor="pp"><Input id="pp" name="plin_phone" defaultValue={s.plin_phone ?? ""} /></Field>
-              <Field label="Titular de las billeteras" htmlFor="wh"><Input id="wh" name="wallet_holder_name" defaultValue={s.wallet_holder_name ?? ""} /></Field>
-            </div>
-          </CardBody>
-        </Card>
-        <Card>
-          <CardHeader><CardTitle>Soporte</CardTitle></CardHeader>
-          <CardBody className="grid gap-4 md:grid-cols-2">
-            <Field label="Correo de soporte" htmlFor="se"><Input id="se" name="support_email" type="email" defaultValue={s.support_email ?? ""} /></Field>
-            <Field label="Teléfono de soporte" htmlFor="sp"><Input id="sp" name="support_phone" defaultValue={s.support_phone ?? ""} /></Field>
-          </CardBody>
-        </Card>
-        <div className="flex justify-end"><Button type="submit" size="lg" loading={pending}>Guardar configuración</Button></div>
-      </form>
+    <form className="space-y-6" action={(fd) => void run(() => saveSettingsAction(fd))}>
+      <input type="hidden" name="opening_hours" value={JSON.stringify(hours)} />
+      <Card>
+        <CardHeader><CardTitle>Datos del negocio</CardTitle></CardHeader>
+        <CardBody className="grid gap-4 md:grid-cols-2">
+          <Field label="Nombre comercial" htmlFor="bn"><Input id="bn" name="business_name" defaultValue={s.business_name} required maxLength={80} /></Field>
+          <Field label="Eslogan" htmlFor="sl"><Input id="sl" name="slogan" defaultValue={s.slogan} maxLength={120} /></Field>
+          <ImageUpload name="logo_url" folder="brand" label="Logotipo (opcional, reemplaza al isotipo en los correos y avisos)" defaultValue={s.logo_url} />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Teléfono" htmlFor="ph"><Input id="ph" name="phone" defaultValue={s.phone ?? ""} inputMode="tel" maxLength={20} /></Field>
+            <Field label="WhatsApp" htmlFor="wa" hint="Con código de país, ej. +51 9…"><Input id="wa" name="whatsapp" defaultValue={s.whatsapp ?? ""} inputMode="tel" maxLength={20} /></Field>
+          </div>
+          <Field label="Correo" htmlFor="em"><Input id="em" name="email" type="email" defaultValue={s.email ?? ""} maxLength={120} /></Field>
+          <Field label="Dirección de la tienda" htmlFor="ad"><Input id="ad" name="address" defaultValue={s.address} maxLength={200} /></Field>
+          <Field label="Distrito" htmlFor="di"><Input id="di" name="district" defaultValue={s.district} maxLength={80} /></Field>
+          <Field label="Ciudad" htmlFor="ci"><Input id="ci" name="city" defaultValue={s.city} maxLength={80} /></Field>
+        </CardBody>
+      </Card>
 
       <Card>
-        <CardHeader><CardTitle>Estado de integraciones</CardTitle></CardHeader>
+        <CardHeader><CardTitle>Horario de atención</CardTitle></CardHeader>
         <CardBody className="space-y-2">
-          {integrations.map((i) => (
-            <div key={i.label} className="flex items-start justify-between gap-4 rounded-2xl bg-surface-2 p-3 text-sm">
-              <div><p className="font-medium">{i.label}</p><p className="text-xs text-muted">{i.hint}</p></div>
-              <span className={i.ok ? "font-semibold text-success" : "font-semibold text-warning"}>{i.ok ? "Configurado" : "Pendiente"}</span>
+          {ordered.map((h) => (
+            <div key={h.day} className="flex flex-wrap items-center gap-3 rounded-2xl bg-surface-2/60 px-3 py-2 text-sm">
+              <span className="w-24 font-medium">{DAYS[h.day]}</span>
+              <Switch checked={!h.closed} onChange={(v) => setHour(h.day, { closed: !v })} label={h.closed ? "Cerrado" : "Abierto"} />
+              {!h.closed && (
+                <span className="flex items-center gap-2">
+                  <input type="time" value={h.open} onChange={(e) => setHour(h.day, { open: e.target.value })} className="h-9 rounded-xl border border-border bg-surface px-2" aria-label={`Apertura ${DAYS[h.day]}`} />
+                  a
+                  <input type="time" value={h.close} onChange={(e) => setHour(h.day, { close: e.target.value })} className="h-9 rounded-xl border border-border bg-surface px-2" aria-label={`Cierre ${DAYS[h.day]}`} />
+                </span>
+              )}
             </div>
           ))}
+          <p className="text-xs text-muted">El horario se muestra al cliente. Para pausar los pedidos de inmediato usa «Recibir pedidos».</p>
         </CardBody>
       </Card>
 
-      <Card className="border-danger/40">
-        <CardHeader><CardTitle>Datos de demostración</CardTitle></CardHeader>
-        <CardBody className="flex flex-wrap items-center justify-between gap-4">
-          <p className="max-w-xl text-sm text-muted">Elimina restaurantes, productos y cupones marcados como demo. Los que ya tengan pedidos reales se suspenden para conservar el historial.</p>
-          <ConfirmButton variant="danger" title="¿Eliminar datos de demostración?" description="Esta acción no se puede deshacer." confirmLabel="Eliminar demo" onConfirm={async () => {
-            const res = await purgeDemoDataAction();
-            if (!res.ok) toast.error(res.error); else { toast.success(res.message); router.refresh(); }
-          }}>Eliminar datos demo</ConfirmButton>
+      <Card>
+        <CardHeader><CardTitle>Pedidos y delivery</CardTitle></CardHeader>
+        <CardBody className="space-y-5">
+          <div className="flex flex-wrap gap-6">
+            <Switch name="accepting_orders" checked={flags.accepting} onChange={(v) => setFlags({ ...flags, accepting: v })} label="Recibir pedidos" />
+            <Switch name="delivery_enabled" checked={flags.delivery} onChange={(v) => setFlags({ ...flags, delivery: v })} label="Delivery a domicilio" />
+            <Switch name="pickup_enabled" checked={flags.pickup} onChange={(v) => setFlags({ ...flags, pickup: v })} label="Recojo en tienda" />
+          </div>
+          <div className="grid gap-4 md:grid-cols-4">
+            <Field label="Costo de delivery (S/)" htmlFor="df"><Input id="df" name="delivery_fee" type="number" step="0.10" min={0} defaultValue={s.delivery_fee} required /></Field>
+            <Field label="Delivery gratis desde (S/)" htmlFor="ft" hint="Vacío = nunca gratis"><Input id="ft" name="free_delivery_threshold" type="number" step="0.10" min={0} defaultValue={s.free_delivery_threshold ?? ""} /></Field>
+            <Field label="Compra mínima (S/)" htmlFor="mo"><Input id="mo" name="min_order_amount" type="number" step="0.10" min={0} defaultValue={s.min_order_amount} required /></Field>
+            <Field label="Tiempo estimado" htmlFor="eta"><Input id="eta" name="delivery_eta" defaultValue={s.delivery_eta} required maxLength={60} placeholder="30 a 60 min" /></Field>
+          </div>
+          <Field label="Stock mínimo por defecto para productos nuevos" htmlFor="ls" className="max-w-xs"><Input id="ls" name="low_stock_default" type="number" min={0} max={1000} defaultValue={s.low_stock_default} /></Field>
         </CardBody>
       </Card>
-    </div>
+
+      <Card>
+        <CardHeader><CardTitle>Mensajes para el cliente</CardTitle></CardHeader>
+        <CardBody className="grid gap-4 md:grid-cols-2">
+          <Field label="Bienvenida (inicio)" htmlFor="m1"><Textarea id="m1" name="welcome_message" defaultValue={s.welcome_message} maxLength={300} className="min-h-20" /></Field>
+          <Field label="Aviso en el checkout" htmlFor="m2"><Textarea id="m2" name="checkout_message" defaultValue={s.checkout_message} maxLength={300} className="min-h-20" /></Field>
+          <Field label="Confirmación del pedido" htmlFor="m3"><Textarea id="m3" name="order_confirmation_message" defaultValue={s.order_confirmation_message} maxLength={300} className="min-h-20" /></Field>
+          <Field label="Atención al cliente" htmlFor="m4"><Textarea id="m4" name="support_message" defaultValue={s.support_message} maxLength={300} className="min-h-20" /></Field>
+        </CardBody>
+      </Card>
+
+      <Card>
+        <CardHeader><CardTitle>Redes sociales</CardTitle></CardHeader>
+        <CardBody className="grid gap-4 md:grid-cols-3">
+          <Field label="Facebook" htmlFor="fb"><Input id="fb" name="facebook_url" type="url" defaultValue={s.facebook_url ?? ""} placeholder="https://facebook.com/…" /></Field>
+          <Field label="Instagram" htmlFor="ig"><Input id="ig" name="instagram_url" type="url" defaultValue={s.instagram_url ?? ""} placeholder="https://instagram.com/…" /></Field>
+          <Field label="TikTok" htmlFor="tt"><Input id="tt" name="tiktok_url" type="url" defaultValue={s.tiktok_url ?? ""} placeholder="https://tiktok.com/@…" /></Field>
+        </CardBody>
+      </Card>
+
+      <div className="flex justify-end"><Button type="submit" size="lg" loading={pending}>Guardar configuración</Button></div>
+    </form>
   );
 }

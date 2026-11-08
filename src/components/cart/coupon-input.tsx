@@ -9,8 +9,8 @@ export function CouponInput({ value, error, onApply }: { value: string | null; e
   if (value) {
     return (
       <div className="space-y-1">
-        <div className="flex items-center justify-between rounded-2xl border border-dashed border-brand bg-brand/5 px-4 py-3">
-          <span className="flex items-center gap-2 font-mono text-sm font-bold text-brand"><Ticket className="h-4 w-4" /> {value}</span>
+        <div className="flex items-center justify-between rounded-2xl border border-dashed border-accent bg-accent/5 px-4 py-3">
+          <span className="flex items-center gap-2 font-mono text-sm font-bold text-accent"><Ticket className="h-4 w-4" /> {value}</span>
           <button onClick={() => onApply(null)} className="text-muted hover:text-fg" aria-label="Quitar cupón"><X className="h-4 w-4" /></button>
         </div>
         {error && <p className="text-xs font-medium text-danger">{error}</p>}

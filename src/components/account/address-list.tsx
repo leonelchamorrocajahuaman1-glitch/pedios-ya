@@ -34,7 +34,6 @@ export function AddressList({ addresses }: { addresses: Address[] }) {
               <p className="mt-2 text-sm">{a.street}</p>
               <p className="text-sm text-muted">{a.district}, {a.city}</p>
               {a.reference && <p className="mt-1 text-xs text-muted">Ref.: {a.reference}</p>}
-              <p className="mt-1 text-xs text-muted">{a.lat != null ? "📍 Ubicación en mapa" : "Sin ubicación en mapa"}</p>
               <div className="mt-4 flex gap-2">
                 <Button variant="outline" size="sm" onClick={() => setEditing(a)}><Pencil className="h-3.5 w-3.5" /> Editar</Button>
                 <ConfirmButton

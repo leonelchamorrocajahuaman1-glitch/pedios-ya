@@ -9,11 +9,12 @@ const display = Space_Grotesk({ variable: "--font-display-face", subsets: ["lati
 
 export const metadata: Metadata = {
   metadataBase: new URL(env.siteUrl),
-  title: { default: "Mikuy · Delivery de comida, mercado y farmacia", template: "%s · Mikuy" },
+  title: { default: "MULTIPRODUCTOS HUAYTALLA · Minimarket online", template: "%s · Multiproductos Huaytalla" },
   description:
-    "Pide comida, bebidas, productos de supermercado y farmacia de negocios cercanos en Lima. Seguimiento en tiempo real y pagos con Yape, Plin, efectivo o tarjeta.",
-  applicationName: "Mikuy",
-  openGraph: { type: "website", locale: "es_PE", siteName: "Mikuy" },
+    "Todo lo que necesitas, en un solo lugar. Abarrotes, bebidas, snacks, lácteos, limpieza y más con delivery o recojo en tienda. Paga con efectivo, Yape o Plin.",
+  applicationName: "Multiproductos Huaytalla",
+  appleWebApp: { capable: true, title: "Huaytalla", statusBarStyle: "default" },
+  openGraph: { type: "website", locale: "es_PE", siteName: "MULTIPRODUCTOS HUAYTALLA" },
 };
 
 export const viewport: Viewport = {
@@ -21,8 +22,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f6f5f2" },
-    { media: "(prefers-color-scheme: dark)", color: "#08080d" },
+    { media: "(prefers-color-scheme: light)", color: "#f4f7f3" },
+    { media: "(prefers-color-scheme: dark)", color: "#06100a" },
   ],
 };
 

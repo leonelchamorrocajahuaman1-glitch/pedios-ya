@@ -8,7 +8,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       <div className="mb-6 flex items-center gap-4">
-        <div className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-brand to-accent font-display text-xl font-bold text-white">
+        <div className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-brand to-brand-strong font-display text-xl font-bold text-white">
           {(profile.full_name || profile.email || "?")[0]?.toUpperCase()}
         </div>
         <div className="min-w-0 flex-1">

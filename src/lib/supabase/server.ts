@@ -1,7 +1,7 @@
 import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { env } from "@/lib/env";
+import { APP_HEADERS, env } from "@/lib/env";
 
 /**
  * Cliente de Supabase para Server Components, Server Actions y Route Handlers.
@@ -10,6 +10,7 @@ import { env } from "@/lib/env";
 export async function createSupabaseServerClient() {
   const cookieStore = await cookies();
   return createServerClient(env.supabaseUrl, env.supabaseAnonKey, {
+    global: { headers: APP_HEADERS },
     cookies: {
       getAll() {
         return cookieStore.getAll();

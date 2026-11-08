@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bike, ClipboardList, LayoutDashboard, LogOut, Menu, Package, ScrollText, Settings, Store, Tags, Ticket, Users, X, ExternalLink } from "lucide-react";
+import { BarChart3, Boxes, ClipboardList, LayoutDashboard, LogOut, Menu, Package, ScrollText, Settings, Tags, Ticket, Users, X, ExternalLink } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { signOutAction } from "@/lib/actions/auth";
@@ -13,12 +13,12 @@ import { cn } from "@/lib/utils";
 const NAV = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/pedidos", label: "Pedidos", icon: ClipboardList },
-  { href: "/admin/restaurantes", label: "Restaurantes", icon: Store },
-  { href: "/admin/categorias", label: "Categorías", icon: Tags },
   { href: "/admin/productos", label: "Productos", icon: Package },
+  { href: "/admin/categorias", label: "Categorías", icon: Tags },
+  { href: "/admin/inventario", label: "Inventario", icon: Boxes },
   { href: "/admin/clientes", label: "Clientes", icon: Users },
-  { href: "/admin/repartidores", label: "Repartidores", icon: Bike },
   { href: "/admin/promociones", label: "Promociones", icon: Ticket },
+  { href: "/admin/reportes", label: "Reportes", icon: BarChart3 },
   { href: "/admin/configuracion", label: "Configuración", icon: Settings },
   { href: "/admin/auditoria", label: "Auditoría", icon: ScrollText },
 ];
@@ -72,7 +72,7 @@ export function AdminSidebar({ name }: { name: string }) {
       <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col gap-6 border-r border-border bg-surface p-4 lg:flex">
         <div className="px-2 pt-2">
           <Logo href="/admin" />
-          <p className="mt-1 pl-12 text-[11px] font-semibold uppercase tracking-widest text-accent">Admin</p>
+          <p className="mt-2 inline-flex rounded-full bg-brand/12 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-brand">Panel de administración</p>
         </div>
         <nav className="flex-1 overflow-y-auto" aria-label="Administración"><NavLinks /></nav>
         <Footer name={name} />

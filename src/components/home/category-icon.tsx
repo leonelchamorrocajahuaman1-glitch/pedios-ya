@@ -1,21 +1,30 @@
-import { Beef, CakeSlice, ChefHat, CupSoda, Drumstick, Fish, Pill, Pizza, ShoppingBasket, Utensils, type LucideIcon } from "lucide-react";
+import {
+  Bath, Candy, Coffee, Cookie, Croissant, CupSoda, Droplet, GlassWater, Lamp, Milk, Package, Popcorn,
+  ShoppingBasket, SprayCan, Tag, Wheat, type LucideIcon,
+} from "lucide-react";
 
 const ICONS: Record<string, LucideIcon> = {
-  beef: Beef,
-  pizza: Pizza,
-  drumstick: Drumstick,
-  "chef-hat": ChefHat,
-  fish: Fish,
-  "cake-slice": CakeSlice,
+  coffee: Coffee,
   "cup-soda": CupSoda,
+  "glass-water": GlassWater,
+  popcorn: Popcorn,
+  cookie: Cookie,
+  candy: Candy,
   "shopping-basket": ShoppingBasket,
-  pill: Pill,
-  utensils: Utensils,
+  wheat: Wheat,
+  droplet: Droplet,
+  milk: Milk,
+  croissant: Croissant,
+  package: Package,
+  "spray-can": SprayCan,
+  bath: Bath,
+  lamp: Lamp,
+  tag: Tag,
 };
 
 export const CATEGORY_ICON_OPTIONS = Object.keys(ICONS);
 
 export function CategoryIcon({ name, className }: { name: string; className?: string }) {
-  const Icon = ICONS[name] ?? Utensils;
+  const Icon = ICONS[name] ?? ShoppingBasket;
   return <Icon className={className} aria-hidden />;
 }

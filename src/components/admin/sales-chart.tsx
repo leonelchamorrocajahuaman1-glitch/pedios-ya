@@ -38,7 +38,7 @@ export function SalesChart({ data }: { data: Record<Range, SeriesPoint[]> }) {
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="font-display text-lg font-semibold">{metric === "sales" ? "Ventas" : "Pedidos"} por {RANGES.find((r) => r.id === range)!.label.toLowerCase()}</h2>
-          <p className="text-sm text-muted">Total del periodo: <span className="font-semibold text-fg">{fmt(total)}</span> · excluye cancelados</p>
+          <p className="text-sm text-muted">Total del periodo: <span className="font-semibold text-fg">{fmt(total)}</span> · solo pedidos entregados</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <div className="flex rounded-full bg-surface-2 p-1">

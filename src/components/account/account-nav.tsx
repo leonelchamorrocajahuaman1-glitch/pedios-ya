@@ -2,16 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ClipboardList, Heart, MapPin, Star, Ticket, User } from "lucide-react";
+import { ClipboardList, MapPin, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const LINKS = [
-  { href: "/cuenta", label: "Perfil", icon: User },
-  { href: "/cuenta/pedidos", label: "Pedidos", icon: ClipboardList },
+  { href: "/cuenta", label: "Mi perfil", icon: User },
+  { href: "/cuenta/pedidos", label: "Mis pedidos", icon: ClipboardList },
   { href: "/cuenta/direcciones", label: "Direcciones", icon: MapPin },
-  { href: "/cuenta/favoritos", label: "Favoritos", icon: Heart },
-  { href: "/cuenta/cupones", label: "Cupones", icon: Ticket },
-  { href: "/cuenta/calificaciones", label: "Calificaciones", icon: Star },
 ];
 
 export function AccountNav() {
@@ -21,14 +18,7 @@ export function AccountNav() {
       {LINKS.map(({ href, label, icon: Icon }) => {
         const active = href === "/cuenta" ? pathname === href : pathname.startsWith(href);
         return (
-          <Link
-            key={href}
-            href={href}
-            className={cn(
-              "flex shrink-0 items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-medium transition",
-              active ? "bg-fg text-bg" : "bg-surface hover:bg-surface-2 lg:bg-transparent",
-            )}
-          >
+          <Link key={href} href={href} className={cn("flex shrink-0 items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-medium transition", active ? "bg-brand text-brand-fg" : "bg-surface hover:bg-surface-2 lg:bg-transparent")}>
             <Icon className="h-4 w-4" /> {label}
           </Link>
         );

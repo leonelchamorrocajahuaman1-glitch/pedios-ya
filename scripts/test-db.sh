@@ -3,7 +3,7 @@
 # Requiere psql y permisos para crear bases. Uso: DB_SUPERUSER=postgres ./scripts/test-db.sh
 set -euo pipefail
 cd "$(dirname "$0")/.."
-DB=${TEST_DB:-mikuy_test}
+DB=${TEST_DB:-huaytalla_test}
 RUN="psql -v ON_ERROR_STOP=1 -q"
 if [ -n "${DB_SUPERUSER:-}" ]; then RUN="sudo -u $DB_SUPERUSER $RUN"; fi
 $RUN -d postgres -c "drop database if exists $DB" -c "create database $DB"

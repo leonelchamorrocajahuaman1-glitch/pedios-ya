@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, ShoppingBag } from "lucide-react";
+import { ArrowRight, ShoppingCart, Truck } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { useQuote } from "@/hooks/use-quote";
 import { CartLines } from "@/components/cart/cart-lines";
@@ -13,15 +13,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { buttonStyles } from "@/components/ui/button";
 import { ConfirmButton } from "@/components/ui/confirm-button";
 import { cn } from "@/lib/utils";
+import { formatPEN } from "@/lib/format";
 
 export default function CartPage() {
   const cart = useCart();
-  const { quote, error, couponError, loading } = useQuote({
-    restaurantId: cart.restaurant?.id ?? null,
-    items: cart.items,
-    coupon: cart.coupon,
-    enabled: cart.ready,
-  });
+  const { quote, error, errorCode, couponError, loading } = useQuote({ items: cart.items, coupon: cart.coupon, fulfillment: "delivery", enabled: cart.ready });
 
   if (!cart.ready) {
     return (
@@ -31,21 +27,16 @@ export default function CartPage() {
       </div>
     );
   }
-
   if (cart.items.length === 0) {
     return (
       <div className="mx-auto max-w-xl px-4 py-16">
-        <EmptyState
-          icon={<ShoppingBag />}
-          title="Tu carrito está vacío"
-          description="Explora los restaurantes y agrega tus antojos."
-          action={<Link href="/buscar" className={buttonStyles()}>Explorar restaurantes</Link>}
-        />
+        <EmptyState icon={<ShoppingCart />} title="Tu carrito está vacío" description="Agrega productos y aquí verás tu compra." action={<Link href="/productos" className={buttonStyles()}>Ver productos</Link>} />
       </div>
     );
   }
-
-  const blocked = Boolean(error) || !quote;
+  // La compra mínima no impide ver el carrito; solo bloquea el paso al pago
+  const blocked = !quote || (Boolean(error) && errorCode !== "MIN_ORDER");
+  const minOrder = errorCode === "MIN_ORDER";
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
@@ -54,31 +45,26 @@ export default function CartPage() {
         <Card>
           <CardBody>
             <div className="mb-2 flex items-center justify-between gap-3">
-              <Link href={`/restaurante/${cart.restaurant?.slug}`} className="font-display text-lg font-semibold hover:text-brand">
-                {cart.restaurant?.name}
-              </Link>
-              <ConfirmButton variant="ghost" size="sm" title="¿Vaciar carrito?" description="Se eliminarán todos los productos." confirmLabel="Vaciar" onConfirm={() => cart.clear()}>
-                Vaciar
-              </ConfirmButton>
+              <p className="font-semibold">{cart.count} producto{cart.count === 1 ? "" : "s"}</p>
+              <ConfirmButton variant="ghost" size="sm" title="¿Vaciar carrito?" description="Se quitarán todos los productos." confirmLabel="Vaciar" onConfirm={() => cart.clear()}>Vaciar</ConfirmButton>
             </div>
-            <CartLines />
-            <Link href={`/restaurante/${cart.restaurant?.slug}`} className="mt-2 inline-block text-sm font-semibold text-brand hover:underline">
-              + Agregar más productos
-            </Link>
+            <CartLines lines={quote?.lines} />
+            <Link href="/productos" className="mt-2 inline-block text-sm font-semibold text-brand hover:underline">+ Seguir comprando</Link>
           </CardBody>
         </Card>
         <div className="space-y-4 lg:sticky lg:top-24 lg:self-start">
           <Card>
             <CardBody className="space-y-5">
               <CouponInput value={cart.coupon} error={couponError} onApply={cart.setCoupon} />
-              <OrderSummary quote={quote} loading={loading} error={error} />
-              <p className="text-xs text-muted">El costo de envío final se ajusta a la distancia de tu dirección en el siguiente paso.</p>
-              <Link
-                href="/checkout"
-                aria-disabled={blocked}
-                className={cn(buttonStyles({ size: "lg" }), "w-full", blocked && "pointer-events-none opacity-50")}
-              >
-                Continuar al pago <ArrowRight className="h-5 w-5" />
+              {minOrder ? (
+                <div className="flex justify-between text-sm"><span className="text-muted">Subtotal estimado</span><span className="font-semibold">{formatPEN(cart.estimatedSubtotal)}</span></div>
+              ) : (
+                <OrderSummary quote={quote} loading={loading} error={error} />
+              )}
+              {minOrder && <p className="rounded-2xl bg-warning/12 px-4 py-3 text-sm font-medium text-warning">{error} Agrega más productos para continuar.</p>}
+              <p className="flex items-start gap-2 text-xs text-muted"><Truck className="mt-0.5 h-4 w-4 shrink-0" /> El costo final de delivery se confirma según tu dirección. También puedes recoger en tienda.</p>
+              <Link href="/checkout" aria-disabled={blocked || minOrder} className={cn(buttonStyles({ size: "lg" }), "w-full", (blocked || minOrder) && "pointer-events-none opacity-50")}>
+                Continuar con la compra <ArrowRight className="h-5 w-5" />
               </Link>
             </CardBody>
           </Card>

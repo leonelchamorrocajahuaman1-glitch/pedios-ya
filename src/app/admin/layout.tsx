@@ -7,7 +7,7 @@ import { isSupabaseConfigured } from "@/lib/env";
 // Siempre dinámico: depende de la sesión y de variables de entorno en tiempo de ejecución.
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = { title: { default: "Panel administrativo", template: "%s · Admin Mikuy" }, robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: { default: "Panel administrativo", template: "%s · Admin Huaytalla" }, robots: { index: false, follow: false } };
 
 /**
  * Panel independiente del cliente. requireAdmin() valida en el servidor el rol

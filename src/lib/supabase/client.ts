@@ -2,7 +2,7 @@
 
 import { createBrowserClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { env, isSupabaseConfigured } from "@/lib/env";
+import { APP_HEADERS, env, isSupabaseConfigured } from "@/lib/env";
 
 let client: SupabaseClient | null = null;
 
@@ -11,6 +11,6 @@ export function getSupabaseBrowserClient(): SupabaseClient {
   if (!isSupabaseConfigured) {
     throw new Error("Supabase no está configurado. Revisa NEXT_PUBLIC_SUPABASE_URL y la clave pública.");
   }
-  if (!client) client = createBrowserClient(env.supabaseUrl, env.supabaseAnonKey);
+  if (!client) client = createBrowserClient(env.supabaseUrl, env.supabaseAnonKey, { global: { headers: APP_HEADERS } });
   return client;
 }

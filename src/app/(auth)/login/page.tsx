@@ -9,7 +9,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   return (
     <>
       <h1 className="font-display text-3xl font-bold tracking-tight">Hola de nuevo 👋</h1>
-      <p className="mb-8 mt-2 text-muted">Ingresa para pedir, seguir tus entregas y usar tus cupones.</p>
+      <p className="mb-8 mt-2 text-muted">Ingresa para comprar, seguir tus pedidos en tiempo real y usar tus cupones.</p>
       <LoginForm next={safeNext} linkError={error === "link"} />
     </>
   );

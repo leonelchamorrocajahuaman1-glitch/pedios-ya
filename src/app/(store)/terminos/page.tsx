@@ -12,15 +12,15 @@ export default function TermsPage() {
       </p>
       <section className="space-y-2">
         <h2 className="text-lg font-semibold">1. Servicio</h2>
-        <p>Mikuy es una plataforma que conecta a clientes con negocios afiliados y repartidores independientes en Perú. Los precios se muestran en soles e incluyen IGV.</p>
+        <p>MULTIPRODUCTOS HUAYTALLA es un minimarket que vende sus propios productos a través de esta tienda online, con delivery o recojo en tienda. Los precios se muestran en soles e incluyen IGV.</p>
       </section>
       <section className="space-y-2">
         <h2 className="text-lg font-semibold">2. Pedidos y pagos</h2>
-        <p>Los importes los calcula el sistema al confirmar. Los pagos con tarjeta los procesa Mercado Pago; no almacenamos datos de tarjetas. Los pagos por Yape o Plin se confirman tras verificar el número de operación. Puedes cancelar un pedido mientras el restaurante no lo haya aceptado.</p>
+        <p>Los importes, promociones y stock los verifica el sistema al confirmar. Los pagos por Yape o Plin se confirman después de que el negocio verifique el número de operación y el comprobante adjunto. Puedes cancelar un pedido mientras no haya sido confirmado.</p>
       </section>
       <section className="space-y-2">
         <h2 className="text-lg font-semibold">3. Datos personales</h2>
-        <p>Usamos tu nombre, teléfono y dirección solo para gestionar tus pedidos. La ubicación de los repartidores solo se comparte durante una entrega activa y con su autorización. Puedes solicitar la eliminación de tu cuenta escribiendo a soporte.</p>
+        <p>Usamos tu nombre, teléfono y dirección solo para gestionar tus pedidos. Los comprobantes de pago se guardan de forma privada y solo los ve el personal autorizado. Puedes solicitar la eliminación de tu cuenta escribiendo a soporte.</p>
       </section>
     </article>
   );

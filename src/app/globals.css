@@ -3,44 +3,44 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --bg: #f6f5f2;
+  --bg: #f4f7f3;
   --surface: #ffffff;
-  --surface-2: #f0eee9;
-  --fg: #12121a;
-  --muted: #5f5f70;
-  --border: #e4e1da;
-  --brand: #ff4d2e;
-  --brand-strong: #e63b1d;
+  --surface-2: #ecf2ea;
+  --fg: #0d1a12;
+  --muted: #56685c;
+  --border: #dbe5d8;
+  --brand: #16a34a;
+  --brand-strong: #15803d;
   --brand-fg: #ffffff;
-  --accent: #7c5cff;
-  --lime: #b9ef3c;
-  --success: #12a150;
-  --warning: #d98a00;
-  --danger: #e5383b;
-  --info: #2f7bf5;
-  --ring: rgba(255, 77, 46, 0.35);
-  --shadow: 0 1px 2px rgba(18, 18, 26, 0.04), 0 8px 24px -12px rgba(18, 18, 26, 0.12);
+  --accent: #f97316;
+  --lime: #a3e635;
+  --success: #15803d;
+  --warning: #c2710c;
+  --danger: #dc2626;
+  --info: #2563eb;
+  --ring: rgba(22, 163, 74, 0.32);
+  --shadow: 0 1px 2px rgba(13, 26, 18, 0.05), 0 10px 28px -14px rgba(13, 26, 18, 0.18);
   color-scheme: light;
 }
 
 .dark {
-  --bg: #08080d;
-  --surface: #11111a;
-  --surface-2: #1a1a26;
-  --fg: #f3f3f7;
-  --muted: #9b9bb2;
-  --border: #262636;
-  --brand: #ff5a3c;
-  --brand-strong: #ff7357;
-  --brand-fg: #ffffff;
-  --accent: #9a84ff;
-  --lime: #c8f560;
-  --success: #34d27b;
-  --warning: #f5b23d;
-  --danger: #ff5c60;
-  --info: #5b9bff;
-  --ring: rgba(255, 90, 60, 0.4);
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px -16px rgba(0, 0, 0, 0.7);
+  --bg: #06100a;
+  --surface: #0d1912;
+  --surface-2: #142219;
+  --fg: #eef6f0;
+  --muted: #93a99a;
+  --border: #1e3326;
+  --brand: #22c55e;
+  --brand-strong: #4ade80;
+  --brand-fg: #04120a;
+  --accent: #fb923c;
+  --lime: #bef264;
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --info: #60a5fa;
+  --ring: rgba(34, 197, 94, 0.38);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.45), 0 14px 34px -16px rgba(0, 0, 0, 0.75);
   color-scheme: dark;
 }
 
@@ -105,7 +105,7 @@ body {
     background-size: 44px 44px;
   }
   .text-gradient {
-    background: linear-gradient(100deg, var(--brand) 10%, var(--accent) 60%, var(--brand) 100%);
+    background: linear-gradient(100deg, var(--brand) 5%, var(--lime) 45%, var(--accent) 90%);
     background-size: 200% auto;
     -webkit-background-clip: text;
     background-clip: text;
@@ -132,7 +132,13 @@ body {
   }
 }
 
-/* Mapbox: integrar con el tema */
-.mapboxgl-ctrl-attrib {
-  font-size: 10px;
+
+@layer utilities {
+  .bg-dots {
+    background-image: radial-gradient(color-mix(in oklab, var(--fg) 9%, transparent) 1px, transparent 1px);
+    background-size: 18px 18px;
+  }
+  .promo-stripes {
+    background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0 12px, transparent 12px 24px);
+  }
 }
