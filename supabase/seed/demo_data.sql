@@ -16,7 +16,7 @@ insert into public.categories (slug, name, icon, image_url, sort_order) values
   ('bebidas', 'Bebidas', 'cup-soda', 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=600&q=80', 7),
   ('supermercados', 'Supermercados', 'shopping-basket', 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&q=80', 8),
   ('farmacias', 'Farmacias', 'pill', 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=600&q=80', 9)
-on conflict (slug) do nothing;
+on conflict (catalog, slug) do nothing;
 
 insert into public.restaurants (slug, name, description, logo_url, cover_url, phone, address, district, lat, lng,
   rating_avg, rating_count, delivery_time_min, delivery_time_max, delivery_fee, min_order_amount, commission_rate,
@@ -68,7 +68,7 @@ select r.id, c.id from (values
   ('anticucheria-tia-rosa', 'comida-peruana')
 ) as x(r_slug, c_slug)
 join public.restaurants r on r.slug = x.r_slug
-join public.categories c on c.slug = x.c_slug
+join public.categories c on c.slug = x.c_slug and c.catalog = 'marketplace'
 on conflict do nothing;
 
 -- Productos
@@ -137,7 +137,7 @@ from (values
   ('anticucheria-tia-rosa', 'postres', 'Postres', 'Picarones con miel', '6 picarones de zapallo y camote con miel de chancaca.', 'photo-1551024601-bf4e48b7b3b2', 12.00, null, null, true, false, '[]', 2)
 ) as x(r_slug, c_slug, section, name, description, img, price, compare_at, stock, available, popular, options, sort_order)
 join public.restaurants r on r.slug = x.r_slug
-left join public.categories c on c.slug = x.c_slug;
+left join public.categories c on c.slug = x.c_slug and c.catalog = 'marketplace';
 
 -- Promociones de ejemplo
 insert into public.coupons (code, description, discount_type, discount_value, max_discount, min_order_amount,

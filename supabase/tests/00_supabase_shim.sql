@@ -27,3 +27,11 @@ create publication supabase_realtime;
 alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
 alter default privileges in schema public grant all on functions to anon, authenticated, service_role;
 alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
+
+-- storage.foldername (helper de Supabase Storage)
+create or replace function storage.foldername(name text) returns text[] language sql immutable as $$
+  select (string_to_array(name, '/'))[1:greatest(array_length(string_to_array(name, '/'), 1) - 1, 0)]
+$$;
+grant execute on function storage.foldername(text) to anon, authenticated, service_role;
+grant select, insert, update, delete on storage.objects to anon, authenticated, service_role;
+grant select on storage.buckets to anon, authenticated, service_role;

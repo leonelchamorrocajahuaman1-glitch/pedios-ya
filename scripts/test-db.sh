@@ -8,4 +8,4 @@ RUN="psql -v ON_ERROR_STOP=1 -q"
 if [ -n "${DB_SUPERUSER:-}" ]; then RUN="sudo -u $DB_SUPERUSER $RUN"; fi
 $RUN -d postgres -c "drop database if exists $DB" -c "create database $DB"
 cat supabase/tests/00_supabase_shim.sql supabase/migrations/*.sql supabase/seed/demo_data.sql \
-  supabase/tests/01_business_and_rls_tests.sql | $RUN -d "$DB" 2>&1 | grep -v "wal_level\|logical"
+  supabase/seed/store_demo.sql supabase/tests/01_business_and_rls_tests.sql supabase/tests/02_store_tests.sql | $RUN -d "$DB" 2>&1 | grep -v "wal_level\|logical"
