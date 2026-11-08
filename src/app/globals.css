@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --bg: #f6f5f2;
+  --surface: #ffffff;
+  --surface-2: #f0eee9;
+  --fg: #12121a;
+  --muted: #5f5f70;
+  --border: #e4e1da;
+  --brand: #ff4d2e;
+  --brand-strong: #e63b1d;
+  --brand-fg: #ffffff;
+  --accent: #7c5cff;
+  --lime: #b9ef3c;
+  --success: #12a150;
+  --warning: #d98a00;
+  --danger: #e5383b;
+  --info: #2f7bf5;
+  --ring: rgba(255, 77, 46, 0.35);
+  --shadow: 0 1px 2px rgba(18, 18, 26, 0.04), 0 8px 24px -12px rgba(18, 18, 26, 0.12);
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #08080d;
+  --surface: #11111a;
+  --surface-2: #1a1a26;
+  --fg: #f3f3f7;
+  --muted: #9b9bb2;
+  --border: #262636;
+  --brand: #ff5a3c;
+  --brand-strong: #ff7357;
+  --brand-fg: #ffffff;
+  --accent: #9a84ff;
+  --lime: #c8f560;
+  --success: #34d27b;
+  --warning: #f5b23d;
+  --danger: #ff5c60;
+  --info: #5b9bff;
+  --ring: rgba(255, 90, 60, 0.4);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px -16px rgba(0, 0, 0, 0.7);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-fg: var(--brand-fg);
+  --color-accent: var(--accent);
+  --color-lime: var(--lime);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display-face), var(--font-body), ui-sans-serif, sans-serif;
+  --shadow-card: var(--shadow);
+  --radius-xl2: 1.25rem;
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--brand);
+  color: white;
+}
+
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+@layer utilities {
+  .glass {
+    background: color-mix(in oklab, var(--surface) 72%, transparent);
+    backdrop-filter: saturate(160%) blur(16px);
+    -webkit-backdrop-filter: saturate(160%) blur(16px);
+  }
+  .grid-bg {
+    background-image:
+      linear-gradient(to right, color-mix(in oklab, var(--fg) 6%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in oklab, var(--fg) 6%, transparent) 1px, transparent 1px);
+    background-size: 44px 44px;
+  }
+  .text-gradient {
+    background: linear-gradient(100deg, var(--brand) 10%, var(--accent) 60%, var(--brand) 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+  .pb-safe {
+    padding-bottom: max(env(safe-area-inset-bottom), 0.75rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Mapbox: integrar con el tema */
+.mapboxgl-ctrl-attrib {
+  font-size: 10px;
+}
