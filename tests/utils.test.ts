@@ -25,3 +25,12 @@ describe("utilidades", () => {
     expect(sanitizeQuery("pizza%,id.eq.1)")).toBe("pizza id eq 1");
   });
 });
+
+import { toUserMessage } from "@/lib/errors";
+describe("mensajes de error de Supabase en español", () => {
+  it("traduce correos inválidos y fallos de envío", () => {
+    expect(toUserMessage({ message: 'Email address "x@y.test" is invalid' })).toMatch(/no es válido/);
+    expect(toUserMessage({ message: "Email address not authorized" })).toMatch(/correo de confirmación/);
+    expect(toUserMessage({ code: "42501", message: "x" })).toMatch(/permisos/);
+  });
+});

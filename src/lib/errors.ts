@@ -11,6 +11,10 @@ export function toUserMessage(error: unknown, fallback = "Ocurrió un error ines
   if (e.message?.includes("Invalid login credentials")) return "Correo o contraseña incorrectos.";
   if (e.message?.includes("Email not confirmed")) return "Confirma tu correo antes de iniciar sesión.";
   if (e.message?.includes("User already registered")) return "Ya existe una cuenta con este correo.";
+  if (/email address .* is invalid/i.test(e.message ?? "")) return "Ese correo no es válido. Usa una dirección de correo real.";
+  if (/not authorized|email_address_not_authorized|error sending confirmation/i.test(e.message ?? ""))
+    return "No pudimos enviar el correo de confirmación. Inténtalo más tarde o escríbenos a soporte.";
+  if (/password should be|weak password/i.test(e.message ?? "")) return "La contraseña es demasiado débil. Usa al menos 8 caracteres con letras y números.";
   if (e.message?.toLowerCase().includes("rate limit")) return "Demasiados intentos. Espera unos minutos.";
   if (e.message && !e.message.startsWith("JWT") && e.message.length < 200) return e.message;
   return fallback;
