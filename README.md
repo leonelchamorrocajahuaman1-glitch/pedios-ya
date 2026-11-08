@@ -39,8 +39,8 @@ Copia `.env.example` a `.env.local` y complétalo. En Vercel: *Project → Setti
 | Variable | Obligatoria | Uso |
 |---|---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | Sí | URL del proyecto |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Sí | Clave pública (anon/publishable) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Para pagos con tarjeta y repartidores | Solo servidor. Nunca la expongas con `NEXT_PUBLIC_` |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` *o* `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Sí (una de las dos) | Clave pública (`sb_publishable_…` recomendada, o la anon legacy) |
+| `SUPABASE_SERVICE_ROLE_KEY` *o* `SUPABASE_SECRET_KEY` | Para tarjetas y repartidores | Solo servidor (`service_role` legacy o `sb_secret_…`). Nunca la expongas con `NEXT_PUBLIC_` |
 | `NEXT_PUBLIC_SITE_URL` | Sí en producción | URL pública; se usa en webhooks, correos y enlaces |
 | `NEXT_PUBLIC_MAPBOX_TOKEN` | Opcional | Mapa de seguimiento y búsqueda de direcciones. Sin token se muestra un panel alternativo y el envío usa la ubicación del dispositivo |
 | `MERCADOPAGO_ACCESS_TOKEN` | Para tarjetas | Credencial privada de Mercado Pago Perú |
@@ -55,7 +55,7 @@ npm run dev
 ```
 
 ### 1.4 Desplegar en Vercel
-1. Importa el repositorio en Vercel (framework: Next.js, sin configuración extra).
+1. Importa el repositorio en Vercel (framework: Next.js). `vercel.json` fija la región de funciones en `gru1` (São Paulo), junto a la base de datos en `sa-east-1`.
 2. Carga las variables de entorno y despliega.
 3. Actualiza en Supabase la *Site URL* y *Redirect URLs* con tu dominio.
 
