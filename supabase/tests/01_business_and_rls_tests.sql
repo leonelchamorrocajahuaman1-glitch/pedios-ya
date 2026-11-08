@@ -216,6 +216,16 @@ do $$ begin
     raise exception 'FALLO: anónimo pudo llamar place_order';
   exception when insufficient_privilege then null;
   end;
+  begin
+    perform public.admin_dashboard_stats();
+    raise exception 'FALLO: anónimo pudo llamar admin_dashboard_stats';
+  exception when insufficient_privilege then null;
+  end;
+  begin
+    perform public.cancel_my_order(gen_random_uuid());
+    raise exception 'FALLO: anónimo pudo llamar cancel_my_order';
+  exception when insufficient_privilege then null;
+  end;
 end $$;
 commit;
 

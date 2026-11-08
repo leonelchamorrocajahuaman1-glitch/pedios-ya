@@ -17,7 +17,8 @@ Plataforma web de delivery de comida, bebidas, supermercado y farmacia: tienda p
    2. `supabase/migrations/20261107000002_rls.sql`
    3. `supabase/migrations/20261107000003_functions.sql`
    4. `supabase/migrations/20261107000004_storage_realtime.sql`
-   5. *(Opcional, datos de demostración)* `supabase/seed/demo_data.sql`
+   5. `supabase/migrations/20261108000005_harden_function_grants.sql`
+   6. *(Opcional, datos de demostración)* `supabase/seed/demo_data.sql`
 
    Con la CLI: `supabase link --project-ref <ref>` y `supabase db push` (aplica las migraciones); el seed se ejecuta aparte.
 3. **Authentication → URL Configuration**:
