@@ -46,7 +46,8 @@ export interface Product {
   image_credit: string | null;
   price: number;
   compare_at_price: number | null;
-  cost_price: number | null;
+  /** Solo en el panel: viene de product_costs (privada) */
+  cost_price?: number | null;
   final_price: number;
   discount_percent: number;
   stock: number;

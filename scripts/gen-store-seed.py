@@ -148,8 +148,8 @@ for i, (cat, sub, slug, name, desc, ph, price, before, cost, stock, mn, w, unit,
     barcode += str((10 - check % 10) % 10)
     rows.append(f"  ({q(cat)}, {q(sub)}, {q(slug)}, {q(name)}, {q(desc)}, {q(img(ph) + '?w=900&q=80')}, {price}, {q(before)}, {cost}, {stock}, {mn}, {q(w)}, {q(unit)}, {q(feat)}, {q(sku)}, {q(barcode)}, {i})")
 out.append("insert into public.products (catalog, restaurant_id, category_id, subcategory_id, section, slug, name, description, image_url, price,")
-out.append("  compare_at_price, cost_price, stock, min_stock, weight, unit, is_featured, sku, barcode, brand, sort_order, is_available, is_demo, image_credit)")
-out.append("select 'store', null, c.id, sc.id, c.name, x.slug, x.name, x.description, x.image_url, x.price, x.before::numeric, x.cost, x.stock, x.min_stock,")
+out.append("  compare_at_price, stock, min_stock, weight, unit, is_featured, sku, barcode, brand, sort_order, is_available, is_demo, image_credit)")
+out.append("select 'store', null, c.id, sc.id, c.name, x.slug, x.name, x.description, x.image_url, x.price, x.before::numeric, x.stock, x.min_stock,")
 out.append(f"  x.weight::numeric, x.unit, x.featured, x.sku, x.barcode, {q(B)}, x.ord, true, true, 'Foto: Unsplash'")
 out.append("from (values")
 out.append(",\n".join(rows))
@@ -157,6 +157,12 @@ out.append(") as x(cat, sub, slug, name, description, image_url, price, before, 
 out.append("join public.categories c on c.catalog = 'store' and c.slug = x.cat")
 out.append("left join public.categories sc on sc.catalog = 'store' and sc.slug = x.sub")
 out.append("where not exists (select 1 from public.products p where p.slug = x.slug);\n")
+out.append("-- Precio de compra: tabla aparte, solo visible para administradores")
+out.append("insert into public.product_costs (product_id, cost_price)")
+out.append("select p.id, x.cost from (values")
+out.append(",\n".join(f"  ({q(r[2])}, {r[8]})" for r in P))
+out.append(") as x(slug, cost) join public.products p on p.catalog = 'store' and p.slug = x.slug")
+out.append("on conflict (product_id) do nothing;\n")
 out.append("""-- Promociones de ejemplo
 insert into public.promotions (name, description, discount_type, discount_value, scope, category_id, min_order_amount, starts_at, ends_at, is_demo)
 select 'Semana del snack', '15% de descuento en todos los snacks', 'percentage', 15, 'category', c.id, 0, now() - interval '1 day', now() + interval '30 days', true

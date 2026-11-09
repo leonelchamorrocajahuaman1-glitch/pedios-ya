@@ -61,6 +61,34 @@ begin
 end $$;
 commit;
 
+-- ===================== El precio de compra es privado =====================
+begin;
+set local role anon;
+set local request.headers = '{"x-app":"huaytalla"}';
+do $$ begin
+  begin
+    perform count(*) from public.product_costs;
+    raise exception 'FALLO';
+  exception when others then if sqlerrm = 'FALLO' then raise exception 'FALLO: anónimo leyó costos'; end if; end;
+  assert not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'products' and column_name = 'cost_price'),
+    'products ya no expone cost_price';
+end $$;
+rollback;
+begin;
+set local role authenticated;
+set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-0000000000d1"}';
+do $$ begin
+  assert (select count(*) from public.product_costs) = 0, 'Un cliente no ve costos';
+end $$;
+rollback;
+begin;
+set local role postgres;
+do $$ begin
+  assert (select count(*) from public.product_costs) = 74, 'Los 74 productos demo conservan su costo';
+  assert (select count(*) from public.order_item_costs) = 0, 'Sin ventas todavía';
+end $$;
+rollback;
+
 -- ===================== Cliente Rosa: compra =====================
 begin;
 set local role authenticated;
@@ -85,7 +113,8 @@ begin
      and (v ->> 'total')::numeric = 46.22, 'Totales: ' || v::text;
   assert v ->> 'payment_status' = 'pending' and v ->> 'status' = 'received', 'Nace pendiente';
   assert (select stock from public.products where id = v_arroz) = v_stock - 2, 'Stock descontado';
-  assert (select unit_cost from public.order_items where order_id = v_o1) = 17.80, 'Costo guardado para utilidad';
+  assert (select unit_cost from public.order_items where order_id = v_o1) is null, 'El costo no queda en order_items (visible al cliente)';
+  assert (select count(*) from public.order_item_costs) = 0, 'El cliente no ve los costos de venta';
   -- Reusar cupón (1 por cliente)
   begin
     perform public.store_place_order(jsonb_build_array(jsonb_build_object('product_id', v_arroz, 'quantity', 1)),
@@ -273,6 +302,22 @@ begin
   assert (select count(*) from public.products where catalog = 'marketplace') = 37, 'No tocó el catálogo anterior';
   assert (select count(*) from public.order_items oi join public.orders o on o.id = oi.order_id where o.catalog = 'store') >= 4,
     'Los pedidos conservan sus productos';
+end $$;
+rollback;
+
+begin;
+set local role postgres;
+do $$ begin
+  assert (select count(*) from public.order_item_costs c join public.order_items oi on oi.id = c.order_item_id where c.unit_cost = 17.80) >= 1,
+    'El costo de venta se guarda en la tabla privada';
+end $$;
+rollback;
+begin;
+set local role anon;
+set local request.headers = '{"x-app":"huaytalla"}';
+do $$ declare v jsonb; begin
+  v := public.store_quote((select jsonb_agg(jsonb_build_object('product_id', id, 'quantity', 5)) from public.products where slug = 'arroz-extra-5kg'), null, 'pickup', null);
+  assert not (v -> 'lines' -> 0 ? 'unit_cost'), 'La cotización pública no expone costos';
 end $$;
 rollback;
 

@@ -16,12 +16,13 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
   const { id } = await params;
   if (!z.uuid().safeParse(id).success) notFound();
   const supabase = await createSupabaseServerClient();
-  const [{ data }, { data: cats }] = await Promise.all([
+  const [{ data }, { data: cats }, { data: cost }] = await Promise.all([
     supabase.from("products").select("*, final_price, discount_percent, product_images(*)").eq("id", id).eq("catalog", "store").maybeSingle(),
     supabase.from("categories").select("id, name, parent_id").eq("catalog", "store").order("sort_order").order("name"),
+    supabase.from("product_costs").select("cost_price").eq("product_id", id).maybeSingle(),
   ]);
   if (!data) notFound();
-  const p = data as Product;
+  const p = { ...(data as Product), cost_price: cost?.cost_price ?? null };
   return (
     <div>
       <Link href="/admin/productos" className="mb-3 inline-flex items-center gap-1 text-sm text-muted hover:text-fg"><ArrowLeft className="h-4 w-4" /> Productos</Link>

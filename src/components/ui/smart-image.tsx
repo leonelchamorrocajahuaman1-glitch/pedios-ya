@@ -2,7 +2,7 @@
 
 import Image, { type ImageProps } from "next/image";
 import { useState } from "react";
-import { UtensilsCrossed } from "lucide-react";
+import { ShoppingBasket } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /** Imagen optimizada con respaldo visual si la URL falla o no existe. */
@@ -22,7 +22,7 @@ export function SmartImage({ src, alt, className, fallbackClassName, ...props }:
         role="img"
         aria-label={alt}
       >
-        <UtensilsCrossed className="h-1/4 max-h-10 w-1/4 max-w-10" />
+        <ShoppingBasket className="h-1/4 max-h-10 w-1/4 max-w-10" />
       </div>
     );
   }

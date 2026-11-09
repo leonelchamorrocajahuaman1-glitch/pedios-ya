@@ -78,7 +78,7 @@ export async function saveProductAction(formData: FormData): Promise<ActionResul
   if (!ctx) return FORBIDDEN;
   const parsed = productSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { ok: false, error: firstError(parsed.error) };
-  const { gallery, slug, stock, ...data } = parsed.data;
+  const { gallery, slug, stock, cost_price, ...data } = parsed.data;
   const id = formData.get("id");
   const isEdit = typeof id === "string" && id.length > 0;
   const finalSlug = slug || `${slugify(data.name)}-${Math.random().toString(36).slice(2, 6)}`;
@@ -90,6 +90,13 @@ export async function saveProductAction(formData: FormData): Promise<ActionResul
     : await ctx.supabase.from("products").insert({ ...base, stock: stock ?? 0 }).select("id").single();
   if (error) return fail(error);
   const productId = row.id as string;
+
+  // Precio de compra: tabla privada (solo administradores)
+  const { error: costErr } =
+    cost_price == null
+      ? await ctx.supabase.from("product_costs").delete().eq("product_id", productId)
+      : await ctx.supabase.from("product_costs").upsert({ product_id: productId, cost_price, updated_at: new Date().toISOString() });
+  if (costErr) return fail(costErr);
 
   const { error: delErr } = await ctx.supabase.from("product_images").delete().eq("product_id", productId);
   if (delErr) return fail(delErr);

@@ -37,8 +37,8 @@ select 'store', x.slug, x.name, 'tag', p.id, x.ord from (values
 on conflict (catalog, slug) do nothing;
 
 insert into public.products (catalog, restaurant_id, category_id, subcategory_id, section, slug, name, description, image_url, price,
-  compare_at_price, cost_price, stock, min_stock, weight, unit, is_featured, sku, barcode, brand, sort_order, is_available, is_demo, image_credit)
-select 'store', null, c.id, sc.id, c.name, x.slug, x.name, x.description, x.image_url, x.price, x.before::numeric, x.cost, x.stock, x.min_stock,
+  compare_at_price, stock, min_stock, weight, unit, is_featured, sku, barcode, brand, sort_order, is_available, is_demo, image_credit)
+select 'store', null, c.id, sc.id, c.name, x.slug, x.name, x.description, x.image_url, x.price, x.before::numeric, x.stock, x.min_stock,
   x.weight::numeric, x.unit, x.featured, x.sku, x.barcode, 'Selección Huaytalla', x.ord, true, true, 'Foto: Unsplash'
 from (values
   ('gaseosas', null, 'gaseosa-cola-1-5l', 'Gaseosa sabor cola 1.5 L', 'Bebida gasificada sabor cola, ideal para compartir bien helada.', 'https://images.unsplash.com/photo-1581636625402-29b2a704ef13?w=900&q=80', 7.5, null, 5.2, 48, 12, 1.5, 'l', true, 'HY-0001', '2000000000015', 1),
@@ -119,6 +119,86 @@ from (values
 join public.categories c on c.catalog = 'store' and c.slug = x.cat
 left join public.categories sc on sc.catalog = 'store' and sc.slug = x.sub
 where not exists (select 1 from public.products p where p.slug = x.slug);
+
+-- Precio de compra: tabla aparte, solo visible para administradores
+insert into public.product_costs (product_id, cost_price)
+select p.id, x.cost from (values
+  ('gaseosa-cola-1-5l', 5.2),
+  ('gaseosa-fresa-500ml', 1.6),
+  ('gaseosa-lima-limon-500ml', 1.6),
+  ('agua-sin-gas-625ml', 0.8),
+  ('agua-de-mesa-2-5l', 2.0),
+  ('agua-con-gas-limon-500ml', 1.7),
+  ('nectar-de-naranja-1l', 3.1),
+  ('jugo-de-naranja-500ml', 3.4),
+  ('jugo-frutos-rojos-1l', 4.3),
+  ('agua-saborizada-sandia-500ml', 2.1),
+  ('bebida-de-pina-1l', 2.8),
+  ('cafe-helado-300ml', 4.0),
+  ('cafe-tostado-molido-250g', 9.5),
+  ('te-filtrante-25', 2.6),
+  ('manzanilla-filtrante-25', 2.3),
+  ('batido-frutos-300ml', 3.7),
+  ('limonada-de-fresa-500ml', 2.7),
+  ('papas-fritas-clasicas-150g', 2.9),
+  ('tortillas-de-maiz-200g', 3.3),
+  ('papas-apilables-130g', 4.4),
+  ('canchita-mantequilla-90g', 1.7),
+  ('almendras-200g', 8.6),
+  ('mani-tostado-250g', 3.4),
+  ('galletas-chispas-chocolate-200g', 3.6),
+  ('galletas-avena-chocolate-250g', 4.0),
+  ('chocolate-bitter-70-100g', 4.9),
+  ('bombones-surtidos-200g', 10.2),
+  ('gomitas-ositos-200g', 2.3),
+  ('grageas-chocolate-150g', 2.8),
+  ('chupetin-espiral', 0.7),
+  ('caramelos-surtidos-500g', 5.5),
+  ('harina-sin-preparar-1kg', 3.1),
+  ('fideo-spaghetti-500g', 2.2),
+  ('huevos-15', 7.2),
+  ('avena-en-hojuelas-500g', 3.2),
+  ('cereal-de-maiz-400g', 5.6),
+  ('papa-blanca-1kg', 2.0),
+  ('miel-de-abeja-500g', 12.5),
+  ('fideos-instantaneos-5', 4.1),
+  ('arroz-extra-5kg', 17.8),
+  ('garbanzo-500g', 4.3),
+  ('menestras-surtidas-1kg', 6.4),
+  ('aceite-de-oliva-500ml', 17.0),
+  ('especias-surtidas', 4.5),
+  ('sal-marina-1kg', 1.2),
+  ('leche-fresca-1l', 3.5),
+  ('yogur-de-fresa-1l', 4.6),
+  ('queso-fresco-500g', 10.2),
+  ('mantequilla-200g', 6.1),
+  ('yogur-griego-natural-500g', 6.4),
+  ('bebida-lactea-vainilla-300ml', 2.6),
+  ('pan-artesanal-de-masa-madre', 4.8),
+  ('pan-de-molde-blanco', 4.3),
+  ('pan-de-molde-integral', 4.9),
+  ('croissants-4', 5.8),
+  ('canasta-panes-surtidos', 6.5),
+  ('donas-glaseadas-4', 5.2),
+  ('pack-conservas-surtidas-6', 23.5),
+  ('desinfectante-spray-500ml', 6.3),
+  ('limpiador-multiusos-500ml', 4.6),
+  ('limpiavidrios-500ml', 4.2),
+  ('guantes-de-limpieza', 2.6),
+  ('detergente-en-polvo-2kg', 14.1),
+  ('jabon-de-avena', 3.1),
+  ('jabones-de-tocador-3', 6.0),
+  ('cepillos-dentales-bambu-2', 5.1),
+  ('shampoo-y-acondicionador', 16.2),
+  ('aceite-corporal-100ml', 12.3),
+  ('papel-higienico-4', 4.4),
+  ('vela-aromatica', 8.7),
+  ('foco-led-9w', 4.6),
+  ('pilas-aa-4', 6.2),
+  ('set-tazas-ceramica-4', 18.5),
+  ('bolsa-malla-reutilizable', 3.4)
+) as x(slug, cost) join public.products p on p.catalog = 'store' and p.slug = x.slug
+on conflict (product_id) do nothing;
 
 -- Promociones de ejemplo
 insert into public.promotions (name, description, discount_type, discount_value, scope, category_id, min_order_amount, starts_at, ends_at, is_demo)

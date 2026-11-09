@@ -37,7 +37,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
   const lowOnly = sp.estado === "bajo";
   let query = supabase
     .from("products")
-    .select("id, name, slug, sku, brand, image_url, price, compare_at_price, cost_price, final_price, discount_percent, stock, min_stock, unit, weight, is_available, is_featured, is_demo, category_id, subcategory_id", { count: "exact" })
+    .select("id, name, slug, sku, brand, image_url, price, compare_at_price, final_price, discount_percent, stock, min_stock, unit, weight, is_available, is_featured, is_demo, category_id, subcategory_id", { count: "exact" })
     .eq("catalog", "store")
     .order(sort.col, { ascending: sort.asc })
     .order("name");
