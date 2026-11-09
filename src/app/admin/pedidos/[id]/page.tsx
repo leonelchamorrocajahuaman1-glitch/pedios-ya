@@ -34,13 +34,14 @@ export default async function AdminOrderPage({ params }: { params: Promise<{ id:
       <Link href="/admin/pedidos" className="inline-flex items-center gap-1 text-sm text-muted hover:text-fg"><ArrowLeft className="h-4 w-4" /> Pedidos</Link>
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="font-display text-3xl font-bold">{o.code}</h1>
+        {o.is_test && <Badge tone="warning">PRUEBA · no cuenta en reportes</Badge>}
         <Badge tone={ORDER_STATUS_TONE[o.status]}>{ORDER_STATUS_LABEL[o.status]}</Badge>
         <Badge tone={PAYMENT_STATUS_TONE[o.payment_status]}>{PAYMENT_METHOD_LABEL[o.payment_method]} · {PAYMENT_STATUS_LABEL[o.payment_status]}</Badge>
         <Badge tone="neutral">{o.fulfillment === "pickup" ? "Recojo en tienda" : "Delivery"}</Badge>
         <span className="text-sm text-muted">{formatDateTime(o.created_at)}</span>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.3fr_1fr]">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
         <div className="space-y-6">
           <Card>
             <CardHeader><CardTitle>Productos</CardTitle></CardHeader>

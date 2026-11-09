@@ -33,7 +33,7 @@ export default async function AdminDashboard() {
     supabase.rpc("admin_store_dashboard"),
     supabase
       .from("orders")
-      .select("id, code, status, total, payment_method, fulfillment, customer_name, created_at")
+      .select("id, code, is_test, status, total, payment_method, fulfillment, customer_name, created_at")
       .eq("catalog", "store")
       .order("created_at", { ascending: false })
       .limit(8),
@@ -122,6 +122,7 @@ export default async function AdminDashboard() {
               <li key={o.id}>
                 <Link href={`/admin/pedidos/${o.id}`} className="flex items-center gap-3 py-3 text-sm hover:opacity-80">
                   <span className="font-mono font-semibold">{o.code}</span>
+                  {o.is_test && <Badge tone="warning">PRUEBA</Badge>}
                   <span className="min-w-0 flex-1 truncate text-muted">{o.customer_name} · {o.fulfillment === "pickup" ? "Recojo" : "Delivery"} · {PAYMENT_METHOD_LABEL[o.payment_method]}</span>
                   <Badge tone={ORDER_STATUS_TONE[o.status]}>{ORDER_STATUS_LABEL[o.status]}</Badge>
                   <span className="hidden w-20 text-right font-semibold sm:block">{formatPEN(o.total)}</span>

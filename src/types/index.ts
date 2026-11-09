@@ -16,6 +16,8 @@ export interface Profile {
   avatar_url: string | null;
   role: AppRole;
   status: AccountStatus;
+  /** Cuenta de prueba (solo la marca un admin) */
+  is_test?: boolean;
   created_at: string;
 }
 
@@ -155,6 +157,8 @@ export interface Payment {
 export interface Order {
   id: string;
   code: string;
+  /** Pedido de una cuenta de prueba: excluido de reportes */
+  is_test?: boolean;
   user_id: string;
   fulfillment: Fulfillment;
   customer_name: string | null;

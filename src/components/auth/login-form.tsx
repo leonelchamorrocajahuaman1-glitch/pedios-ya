@@ -8,12 +8,15 @@ import { Field, Input } from "@/components/ui/input";
 import { FormMessage } from "./form-message";
 import { PasswordInput } from "./password-input";
 
-export function LoginForm({ next, linkError }: { next: string; linkError?: boolean }) {
+export function LoginForm({ next, linkError, confirmed }: { next: string; linkError?: boolean; confirmed?: boolean }) {
   const [state, action, pending] = useActionState<AuthFormState, FormData>(loginAction, {});
   return (
     <form action={action} className="space-y-5" noValidate>
       <input type="hidden" name="next" value={next} />
-      <FormMessage error={state.error ?? (linkError ? "El enlace no es válido o expiró. Solicita uno nuevo." : undefined)} />
+      <FormMessage
+        error={state.error ?? (linkError ? "El enlace no es válido o expiró. Solicita uno nuevo." : undefined)}
+        success={!state.error && confirmed ? "¡Correo confirmado! Ya puedes iniciar sesión." : undefined}
+      />
       <Field label="Correo electrónico" htmlFor="email" error={state.fields?.email}>
         <Input id="email" name="email" type="email" autoComplete="email" defaultValue={state.values?.email} aria-invalid={Boolean(state.fields?.email)} required />
       </Field>

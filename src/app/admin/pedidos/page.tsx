@@ -22,7 +22,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
 
   let query = supabase
     .from("orders")
-    .select("id, code, status, total, fulfillment, payment_method, payment_status, created_at, customer_name, contact_phone, delivery_district, delivery_person_name, profiles(full_name, email)", { count: "exact" })
+    .select("id, code, is_test, status, total, fulfillment, payment_method, payment_status, created_at, customer_name, contact_phone, delivery_district, delivery_person_name, profiles(full_name, email)", { count: "exact" })
     .eq("catalog", "store")
     .order("created_at", { ascending: false })
     .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
@@ -68,7 +68,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
             {orders.map((o) => (
               <Tr key={o.id}>
                 <Td>
-                  <Link href={`/admin/pedidos/${o.id}`} className="font-mono font-semibold text-brand hover:underline">{o.code}</Link>
+                  <Link href={`/admin/pedidos/${o.id}`} className="font-mono font-semibold text-brand hover:underline">{o.code}</Link>{o.is_test && <Badge tone="warning" className="ml-2">PRUEBA</Badge>}
                   <p className="text-xs text-muted">{formatDateTime(o.created_at)}</p>
                 </Td>
                 <Td><p className="font-medium">{o.customer_name || o.profiles?.full_name || "—"}</p><p className="text-xs text-muted">{o.contact_phone || o.profiles?.email}</p></Td>

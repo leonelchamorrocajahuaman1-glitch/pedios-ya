@@ -8,11 +8,17 @@ import { Field, Input } from "@/components/ui/input";
 import { FormMessage } from "./form-message";
 import { PasswordInput } from "./password-input";
 
-export function RecoverForm() {
+const LINK_ERRORS: Record<string, string> = {
+  link: "El enlace no es válido o expiró. Solicita uno nuevo.",
+  device: "Abre el enlace en el mismo navegador donde lo solicitaste, o pide uno nuevo aquí.",
+};
+
+export function RecoverForm({ linkError }: { linkError?: string }) {
   const [state, action, pending] = useActionState<AuthFormState, FormData>(recoverAction, {});
+  const initialError = linkError ? LINK_ERRORS[linkError] : undefined;
   return (
     <form action={action} className="space-y-5" noValidate>
-      <FormMessage error={state.error} success={state.success} />
+      <FormMessage error={state.error ?? (state.success ? undefined : initialError)} success={state.success} />
       <Field label="Correo electrónico" htmlFor="email" error={state.fields?.email}>
         <Input id="email" name="email" type="email" autoComplete="email" required />
       </Field>

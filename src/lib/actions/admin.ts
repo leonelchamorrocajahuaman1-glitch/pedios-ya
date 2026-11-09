@@ -219,6 +219,17 @@ export async function setCustomerStatusAction(userId: string, status: AccountSta
   return { ok: true, message: status === "suspended" ? "Cuenta suspendida" : "Cuenta reactivada" };
 }
 
+/** Cuenta de prueba: sus pedidos futuros no cuentan en dashboard ni reportes. */
+export async function setTestAccountAction(userId: string, isTest: boolean): Promise<ActionResult> {
+  const ctx = await adminClient();
+  if (!ctx) return FORBIDDEN;
+  if (!uuid.safeParse(userId).success) return { ok: false, error: "Cliente inválido" };
+  const { error } = await ctx.supabase.rpc("admin_set_test_account", { p_user_id: userId, p_is_test: isTest });
+  if (error) return fail(error);
+  revalidatePath(`/admin/clientes/${userId}`);
+  return { ok: true, message: isTest ? "Marcada como cuenta de prueba" : "Ya no es cuenta de prueba" };
+}
+
 export async function updateCustomerAction(formData: FormData): Promise<ActionResult> {
   const ctx = await adminClient();
   if (!ctx) return FORBIDDEN;

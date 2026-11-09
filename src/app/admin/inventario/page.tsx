@@ -52,7 +52,7 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
     <div className="space-y-6">
       <PageHeader title="Inventario" description="Entradas, salidas y ajustes con motivo, fecha y usuario responsable. Las ventas descuentan stock automáticamente." />
 
-      <div className="grid gap-6 xl:grid-cols-[1fr_400px]">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_400px]">
         <div className="space-y-6">
           <div className="grid gap-4 md:grid-cols-2">
             <Card>

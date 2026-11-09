@@ -100,7 +100,7 @@ export function OrderTracker({ initialOrder, initialHistory, walletMethod, isNew
           </div>
         </div>
       )}
-      <div className="grid gap-6 lg:grid-cols-[1.1fr_1fr]">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
         <div className="space-y-6">
           <Card className="overflow-hidden">
             <div className="relative bg-gradient-to-br from-brand-strong to-brand p-6 text-white">

@@ -16,12 +16,19 @@ export async function GET(request: NextRequest) {
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
 
+  const isRecovery = type === "recovery" || next === "/actualizar-clave";
+
   let ok = false;
   if (code) {
     ok = !(await supabase.auth.exchangeCodeForSession(code)).error;
+    // Supabase ya verificó el correo antes de redirigir con ?code=. Si el canje falla es
+    // porque el enlace se abrió en otro navegador/dispositivo (falta el verificador PKCE).
+    if (!ok) {
+      return NextResponse.redirect(new URL(isRecovery ? "/recuperar?error=device" : "/login?confirmed=1", origin));
+    }
   } else if (tokenHash && type) {
     ok = !(await supabase.auth.verifyOtp({ type, token_hash: tokenHash })).error;
   }
-  const target = ok ? (type === "recovery" ? "/actualizar-clave" : next) : "/login?error=link";
+  const target = ok ? (isRecovery ? "/actualizar-clave" : next) : isRecovery ? "/recuperar?error=link" : "/login?error=link";
   return NextResponse.redirect(new URL(target, origin));
 }

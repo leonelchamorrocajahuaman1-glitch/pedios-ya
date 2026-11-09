@@ -1,3 +1,4 @@
+import { useId } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -6,15 +7,17 @@ import { cn } from "@/lib/utils";
  * con un asa naranja (cercanía y promociones) sobre fondo verde (frescura).
  */
 export function LogoMark({ className }: { className?: string }) {
+  // Id único: si una copia del logo está oculta (display:none), un id repetido deja sin fondo a las demás.
+  const gid = `hy-g-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   return (
     <svg viewBox="0 0 48 48" className={cn("h-10 w-10", className)} aria-hidden>
       <defs>
-        <linearGradient id="hy-g" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+        <linearGradient id={gid} x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
           <stop stopColor="#22c55e" />
           <stop offset="1" stopColor="#15803d" />
         </linearGradient>
       </defs>
-      <rect width="48" height="48" rx="14" fill="url(#hy-g)" />
+      <rect width="48" height="48" rx="14" fill={`url(#${gid})`} />
       <path d="M14 17c0-6 4.5-9.5 10-9.5S34 11 34 17" fill="none" stroke="#f97316" strokeWidth="3.6" strokeLinecap="round" />
       <path d="M10.5 18.5h27l-2.6 17.2a3.4 3.4 0 0 1-3.4 2.9H16.5a3.4 3.4 0 0 1-3.4-2.9z" fill="#fff" />
       <path d="M19 23v10.5M29 23v10.5M19 28.2h10" fill="none" stroke="#15803d" strokeWidth="3.4" strokeLinecap="round" />

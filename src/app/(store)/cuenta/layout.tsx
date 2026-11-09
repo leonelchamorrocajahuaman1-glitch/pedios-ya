@@ -21,7 +21,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
           </button>
         </form>
       </div>
-      <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
+      <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
         <aside><AccountNav /></aside>
         <section className="min-w-0">{children}</section>
       </div>

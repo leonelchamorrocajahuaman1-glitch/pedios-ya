@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { ConfirmButton } from "@/components/ui/confirm-button";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/input";
-import { setCustomerStatusAction, updateCustomerAction } from "@/lib/actions/admin";
+import { setCustomerStatusAction, setTestAccountAction, updateCustomerAction } from "@/lib/actions/admin";
 import type { Profile } from "@/types";
 
 export function CustomerStatusButton({ profile }: { profile: Pick<Profile, "id" | "status" | "role" | "full_name"> }) {
@@ -44,5 +44,28 @@ export function CustomerEditForm({ profile }: { profile: Pick<Profile, "id" | "f
       <Field label="Teléfono" htmlFor="cph"><Input id="cph" name="phone" defaultValue={profile.phone ?? ""} /></Field>
       <Button type="submit" size="sm" loading={pending}>Guardar</Button>
     </form>
+  );
+}
+
+export function TestAccountToggle({ profile }: { profile: Pick<Profile, "id" | "is_test"> }) {
+  const router = useRouter();
+  const on = Boolean(profile.is_test);
+  return (
+    <ConfirmButton
+      size="sm"
+      variant="outline"
+      title={on ? "¿Quitar la marca de cuenta de prueba?" : "¿Marcar como cuenta de prueba?"}
+      description={on
+        ? "Sus próximos pedidos contarán en el dashboard y los reportes."
+        : "Sus próximos pedidos se marcarán como PRUEBA y no contarán en ventas, reportes ni más vendidos. El stock sí se descuenta."}
+      confirmLabel={on ? "Quitar marca" : "Marcar"}
+      onConfirm={async () => {
+        const res = await setTestAccountAction(profile.id, !on);
+        if (!res.ok) toast.error(res.error);
+        else { toast.success(res.message); router.refresh(); }
+      }}
+    >
+      {on ? "Quitar «cuenta de prueba»" : "Marcar como cuenta de prueba"}
+    </ConfirmButton>
   );
 }

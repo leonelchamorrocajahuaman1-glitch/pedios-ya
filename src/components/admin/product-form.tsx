@@ -54,7 +54,7 @@ export function ProductForm({ product: p, categories, defaultMinStock = 5 }: { p
   }
 
   return (
-    <form action={onSubmit} className="grid gap-6 xl:grid-cols-[1fr_340px]">
+    <form action={onSubmit} className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
       {p && <input type="hidden" name="id" value={p.id} />}
       <div className="space-y-6">
         <Card>

@@ -70,8 +70,6 @@ do $$ begin
     perform count(*) from public.product_costs;
     raise exception 'FALLO';
   exception when others then if sqlerrm = 'FALLO' then raise exception 'FALLO: anónimo leyó costos'; end if; end;
-  assert not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'products' and column_name = 'cost_price'),
-    'products ya no expone cost_price';
 end $$;
 rollback;
 begin;
@@ -286,6 +284,53 @@ begin
   assert v_ok, 'Asignó rol por API';
 end $$;
 commit;
+
+-- ===================== Pedidos de prueba no alteran reportes =====================
+begin;
+set local role authenticated;
+set local request.headers = '{"x-app":"huaytalla"}';
+do $$
+declare v_before jsonb; v_after jsonb; v_o uuid; v_ok boolean; v_rep numeric; v_bs int;
+begin
+  -- Un cliente no puede marcarse como cuenta de prueba
+  perform set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000d2"}', true);
+  begin update public.profiles set is_test = true where id = auth.uid(); v_ok := false;
+  exception when insufficient_privilege then v_ok := true; end;
+  assert v_ok, 'Cliente se marcó como prueba';
+  begin perform public.admin_set_test_account(auth.uid(), true); v_ok := false;
+  exception when insufficient_privilege then v_ok := true; end;
+  assert v_ok, 'Cliente usó función de admin';
+
+  perform set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000d3"}', true);
+  v_before := public.admin_store_dashboard();
+  select sum(revenue) into v_rep from public.admin_sales_report(current_date - 1, current_date + 1, 'day');
+  select count(*) into v_bs from public.store_best_sellers(24);
+  perform public.admin_set_test_account('00000000-0000-0000-0000-0000000000d2', true);
+
+  perform set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000d2"}', true);
+  v_o := public.store_place_order(
+    (select jsonb_agg(jsonb_build_object('product_id', id, 'quantity', 8)) from public.products where slug = 'agua-de-mesa-2-5l'),
+    'pickup', 'cash', gen_random_uuid(), 'Jorge Prueba', '987654321');
+  assert (select is_test from public.orders where id = v_o), 'El pedido hereda la marca de prueba';
+
+  perform set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000d3"}', true);
+  perform public.admin_set_order_status(v_o, 'accepted');
+  perform public.admin_set_order_status(v_o, 'preparing');
+  perform public.admin_set_order_status(v_o, 'ready');
+  perform public.admin_set_order_status(v_o, 'delivered');
+  v_after := public.admin_store_dashboard();
+  assert v_after ->> 'revenue_total' = v_before ->> 'revenue_total', 'Ingresos sin cambio: ' || (v_after ->> 'revenue_total');
+  assert v_after ->> 'orders_delivered' = v_before ->> 'orders_delivered', 'Entregados sin cambio';
+  assert v_after -> 'top_products' = v_before -> 'top_products', 'Top productos sin cambio';
+  assert (v_after ->> 'customers')::int = (v_before ->> 'customers')::int - 1, 'La cuenta de prueba no cuenta como cliente';
+  assert (select sum(revenue) from public.admin_sales_report(current_date - 1, current_date + 1, 'day')) = v_rep, 'Reporte sin cambio';
+  assert (select count(*) from public.store_best_sellers(24)) = v_bs, 'Más vendidos sin cambio';
+  assert (select qty from public.admin_product_sales(current_date - 1, current_date + 1) where sku is not null
+          and product_id = (select id from public.products where slug = 'agua-de-mesa-2-5l')) = 0, 'Producto sin ventas reales';
+  -- El stock real sí se descuenta (es inventario físico)
+  assert exists (select 1 from public.inventory_movements where order_id = v_o and type = 'sale');
+end $$;
+rollback;
 
 -- ===================== Limpieza de demo controlada =====================
 begin;

@@ -106,7 +106,7 @@ export function CheckoutForm({ userId, addresses, settings, methods, defaultName
   const sectionBtn = (active: boolean) => cn("flex items-start gap-3 rounded-2xl border p-4 text-left transition disabled:cursor-not-allowed disabled:opacity-45", active ? "border-brand bg-brand/5 ring-4 ring-[var(--ring)]" : "border-border hover:border-fg/30");
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1fr_400px]">
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
       <div className="space-y-6">
         <Card>
           <CardHeader><CardTitle className="flex items-center gap-2"><User className="h-5 w-5 text-brand" /> Tus datos</CardTitle></CardHeader>

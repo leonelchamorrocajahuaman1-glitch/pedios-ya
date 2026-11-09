@@ -41,7 +41,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
     supabase
       .from("orders")
       .select("id, code, customer_name, total, payment_method, cancel_reason, cancelled_at, created_at")
-      .eq("catalog", "store").eq("status", "cancelled")
+      .eq("catalog", "store").eq("status", "cancelled").eq("is_test", false)
       .gte("created_at", `${from}T00:00:00-05:00`).lte("created_at", `${to}T23:59:59.999-05:00`)
       .order("created_at", { ascending: false }).limit(500),
   ]);
@@ -130,7 +130,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
         </TableWrap>
       </section>
 
-      <div className="grid gap-6 xl:grid-cols-[1.4fr_1fr]">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <section>
           <h2 className="mb-3 font-display text-lg font-semibold">Productos más vendidos</h2>
           <TableWrap>
