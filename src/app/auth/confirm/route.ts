@@ -18,6 +18,13 @@ export async function GET(request: NextRequest) {
 
   const isRecovery = type === "recovery" || next === "/actualizar-clave";
 
+  // Supabase devolvió un error (enlace vencido, ya usado o reemplazado por uno más nuevo)
+  const errorCode = searchParams.get("error_code");
+  if (errorCode || searchParams.get("error")) {
+    const kind = errorCode === "otp_expired" ? "expired" : "link";
+    return NextResponse.redirect(new URL(isRecovery ? `/recuperar?error=${kind}` : `/login?error=link`, origin));
+  }
+
   let ok = false;
   if (code) {
     ok = !(await supabase.auth.exchangeCodeForSession(code)).error;

@@ -10,6 +10,7 @@ import { PasswordInput } from "./password-input";
 
 const LINK_ERRORS: Record<string, string> = {
   link: "El enlace no es válido o expiró. Solicita uno nuevo.",
+  expired: "Ese enlace ya se usó, venció o fue reemplazado por uno más nuevo. Abre el correo MÁS RECIENTE de recuperación o solicita otro aquí.",
   device: "Abre el enlace en el mismo navegador donde lo solicitaste, o pide uno nuevo aquí.",
 };
 
